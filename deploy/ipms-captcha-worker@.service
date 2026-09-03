@@ -1,0 +1,33 @@
+[Unit]
+Description=IPMS Captcha Queue Worker %i
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html/ipms_web
+# --sleep is the delay before re-polling an EMPTY queue, so it is pure added latency on
+# an on-demand solve that arrives while the pool is drained. At one second it averaged half
+# a second of doing nothing before a racing attempt was even picked up, which was on par
+# with the solve it was waiting for. A tenth of a second costs ten idle LPOPs per worker per
+# second and Redis does not notice; the booking window is exactly when a captcha request
+# must not sit waiting for a worker to wake up.
+#
+# Blocking pops (block_for) are NOT the fix here: with two queues named, the worker blocks
+# on captcha_priority first and would stall the pool filler's captcha queue for the whole
+# block interval on every empty pass.
+ExecStart=/usr/bin/php8.4 artisan queue:work redis --queue=captcha_priority,captcha --tries=1 --timeout=90 --sleep=0.1
+# Restart=always, NOT on-failure: `php artisan queue:restart` — which every code deploy runs —
+# makes the worker exit 0 after finishing its current job. Under on-failure systemd treats that
+# clean exit as "done" and never brings the worker back, so a single deploy silently kills all
+# 16 workers for good. That happened on Aug 9 2026: every worker exited at 07:38:56 and captcha
+# generation was dead for a day and a half while the UI still showed providers enabled.
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ipms-captcha-worker-%i
+
+[Install]
+WantedBy=multi-user.target

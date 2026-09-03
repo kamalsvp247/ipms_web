@@ -1,0 +1,21 @@
+[Unit]
+Description=IPMS IP Scan Queue Worker
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html/ipms_web
+ExecStart=/usr/bin/php8.4 artisan queue:work redis --queue=scan --tries=1 --timeout=28860 --sleep=3
+# Restart=always, NOT on-failure: `php artisan queue:restart` makes the worker exit 0, which
+# systemd reads as the unit having finished, so it never comes back. See the 2026-08-09 incident
+# in ipms-captcha-worker@.service.
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ipms-scan-worker
+
+[Install]
+WantedBy=multi-user.target

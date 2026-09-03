@@ -1,0 +1,55 @@
+{
+  "baseUrl": "https://api.ivacbd.com/iams/api/v1",
+  "skipGetBookingConfig": false,
+  "retryDelayMs": 2000,
+  "maxRetries": 100,
+  "otpPollIntervalMs": 3000,
+  "otpPollTimeoutMs": 120000,
+  "allowedStartTime": "00:00",
+  "allowedEndTime": "23:59",
+  "slotRetryDelayMs": 2000,
+  "configRetryDelayMs": 2000,
+  "paymentRetryDelayMs": 2000,
+  "signinRetryDelayMs": 2000,
+  "captchaApiKey": "a2739d70bd6dc5632093448135353e45",
+  "captchaSiteKey": "6LdyiGMsAAAAAJefesdWMjxy8pu3A3DmbeJkkdUl",
+  "captchaPageUrl": "https://appointment.ivacbd.com/",
+  "burstProxyCount": 3,
+  "captchaQueueSize": 3,
+
+  "captchaProviders": [
+    {
+      "name": "captchaai",
+      "enabled": true,
+      "apiKey": "a2739d70bd6dc5632093448135353e45",
+      "solverThreads": 2,
+      "params": {
+        "siteKey": "6LdyiGMsAAAAAJefesdWMjxy8pu3A3DmbeJkkdUl",
+        "pageUrl": "https://appointment.ivacbd.com/"
+      }
+    },
+    {
+      "name": "capmonster",
+      "enabled": true,
+      "apiKey": "8f755be1ffca9f13069c7cea448358b4",
+      "solverThreads": 2,
+      "params": {
+        "siteKey": "6LdyiGMsAAAAAJefesdWMjxy8pu3A3DmbeJkkdUl",
+        "pageUrl": "https://appointment.ivacbd.com/"
+      }
+    }
+  ],
+
+  "accounts": [
+    {
+      "phone": "01756118640",
+      "password": "RIDOYKhan35$",
+      "proxyEnabled": false,
+      "maxRetries": null,
+      "retryDelayMs": null,
+      "slotRetryDelayMs": null,
+      "burstEnabled": false,
+      "burstProxyCount": 3
+    }
+  ]
+}

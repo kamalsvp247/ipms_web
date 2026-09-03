@@ -1,0 +1,7 @@
+{
+  "actModeApiProvider": "openai",
+  "planModeApiProvider": "openai",
+  "openAiBaseUrl": "https://9router-production-5213.up.railway.app",
+  "openAiModelId": "provider/model-id",
+  "planModeOpenAiModelId": "provider/model-id"
+}

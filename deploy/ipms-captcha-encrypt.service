@@ -1,0 +1,20 @@
+[Unit]
+Description=IPMS Captcha Live-Bundle Encrypt Sidecar
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html/ipms_web
+Environment=CAPTCHA_SIDECAR_HOST=127.0.0.1
+Environment=CAPTCHA_SIDECAR_PORT=8787
+ExecStart=/usr/bin/node /var/www/html/ipms_web/app/Scripts/captcha_encrypt_server.cjs
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ipms-captcha-encrypt
+
+[Install]
+WantedBy=multi-user.target

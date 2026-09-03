@@ -1,0 +1,443 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+/* SolaimanLipi — Bangla webfont (self-hosted), used on the public landing pages. */
+@font-face {
+    font-family: 'SolaimanLipi';
+    src: url('/fonts/solaimanlipi/SolaimanLipi.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'SolaimanLipi';
+    src: url('/fonts/solaimanlipi/SolaimanLipi-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+.font-bangla {
+    font-family: 'SolaimanLipi', 'Noto Sans Bengali', ui-sans-serif, sans-serif;
+}
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-sans:
+        Montserrat, ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+@layer utilities {
+    body,
+    html {
+        --font-sans:
+            'Montserrat', ui-sans-serif, system-ui, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+            'Noto Color Emoji';
+    }
+}
+
+:root {
+    --background: hsl(48 22% 94%);
+    --foreground: hsl(30 8% 12%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(30 8% 12%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(30 8% 12%);
+    --primary: hsl(30 8% 12%);
+    --primary-foreground: hsl(45 20% 98%);
+    --secondary: hsl(45 16% 89%);
+    --secondary-foreground: hsl(30 8% 14%);
+    --muted: hsl(45 16% 91%);
+    --muted-foreground: hsl(30 7% 32%);
+    --accent: hsl(45 16% 91%);
+    --accent-foreground: hsl(30 8% 14%);
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(40 13% 80%);
+    --input: hsl(40 13% 76%);
+    --ring: hsl(30 8% 12%);
+    --chart-1: hsl(12 76% 61%);
+    --chart-2: hsl(173 58% 39%);
+    --chart-3: hsl(197 37% 24%);
+    --chart-4: hsl(43 74% 66%);
+    --chart-5: hsl(27 87% 67%);
+    --radius: 0.5rem;
+    --sidebar-background: hsl(45 18% 92%);
+    --sidebar-foreground: hsl(30 10% 20%);
+    --sidebar-primary: hsl(30 8% 12%);
+    --sidebar-primary-foreground: hsl(45 20% 98%);
+    --sidebar-accent: hsl(45 15% 86%);
+    --sidebar-accent-foreground: hsl(30 10% 18%);
+    --sidebar-border: hsl(40 13% 80%);
+    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    --sidebar: hsl(45 18% 92%);
+}
+
+.dark {
+    --background: hsl(0 0% 3.9%);
+    --foreground: hsl(0 0% 98%);
+    --card: hsl(0 0% 3.9%);
+    --card-foreground: hsl(0 0% 98%);
+    --popover: hsl(0 0% 3.9%);
+    --popover-foreground: hsl(0 0% 98%);
+    --primary: hsl(0 0% 98%);
+    --primary-foreground: hsl(0 0% 9%);
+    --secondary: hsl(0 0% 14.9%);
+    --secondary-foreground: hsl(0 0% 98%);
+    --muted: hsl(0 0% 16.08%);
+    --muted-foreground: hsl(0 0% 72%);
+    --accent: hsl(0 0% 14.9%);
+    --accent-foreground: hsl(0 0% 98%);
+    --destructive: hsl(0 84% 60%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(0 0% 14.9%);
+    --input: hsl(0 0% 14.9%);
+    --ring: hsl(0 0% 83.1%);
+    --chart-1: hsl(220 70% 50%);
+    --chart-2: hsl(160 60% 45%);
+    --chart-3: hsl(30 80% 55%);
+    --chart-4: hsl(280 65% 60%);
+    --chart-5: hsl(340 75% 55%);
+    --sidebar-background: hsl(0 0% 7%);
+    --sidebar-foreground: hsl(0 0% 95.9%);
+    --sidebar-primary: hsl(360, 100%, 100%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(0 0% 15.9%);
+    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+    --sidebar-border: hsl(0 0% 15.9%);
+    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    --sidebar: hsl(240 5.9% 10%);
+}
+
+@layer base {
+    /* Global UI scale. The portal is dense, so the root font size is shrunk to
+       85% and every rem-based Tailwind size (text, padding, gap, width, icons)
+       follows. Keep the browser at 100% zoom. Set to 100% to undo. */
+    html {
+        font-size: 85%;
+    }
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-weight: 500;
+    }
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    label:has(> input[type='checkbox']),
+    label:has(> input[type='radio']) {
+        cursor: pointer;
+    }
+}
+
+/* ─── Montserrat small-text legibility fixes ─────────────────────────────── */
+/* Montserrat's narrower strokes make sub-12px text hard to read at weight 400,
+   so 9/10/11px are nudged up. Values are rem, not px, so the whole small-text
+   scale follows the 80% root font size instead of staying pinned.
+   These override Tailwind's arbitrary utilities (unlayered = higher priority). */
+.text-\[7px\]  { font-size: 0.4375rem;  }
+.text-\[8px\]  { font-size: 0.5rem;     }
+.text-\[9px\]  { font-size: 0.65625rem; }
+.text-\[10px\] { font-size: 0.71875rem; }
+.text-\[11px\] { font-size: 0.75rem;    }
+.text-\[12px\] { font-size: 0.75rem;    }
+.text-\[13px\] { font-size: 0.8125rem;  }
+.text-\[14px\] { font-size: 0.875rem;   }
+
+/* Darker zinc-400 text in light mode for sufficient contrast with Montserrat */
+html:not(.dark) .text-zinc-400 { color: hsl(240 3.7% 36%); }
+html:not(.dark) .text-zinc-300 { color: hsl(240 3.7% 46%); }
+
+/* ─── Global glassmorphism theme ──────────────────────────────────────────── */
+/* Frosted glass: backdrop blur + semi-transparent backgrounds on all major    */
+/* containers. Applied at cascade level so it works with all Tailwind classes.*/
+
+/* Reusable glassmorphism utilities */
+@layer utilities {
+    .glass {
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    .glass-white {
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        background-color: rgba(255, 255, 255, 0.55);
+        border-color: rgba(180, 172, 150, 0.6);
+    }
+
+    .glass-dark {
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(113, 113, 122, 0.6);
+    }
+}
+
+/* Apply glass effect to rounded bordered containers globally */
+/* This targets .rounded-lg.border and .rounded.border elements across all pages */
+
+/* Light mode (no .dark class on html) */
+html:not(.dark) .rounded-lg.border,
+html:not(.dark) .rounded.border {
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(180, 172, 150, 0.5);
+}
+
+/* Dark mode (.dark class on html) */
+html.dark .rounded-lg.border,
+html.dark .rounded.border {
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    background-color: rgba(24, 24, 27, 0.72);
+    border-color: rgba(113, 113, 122, 0.45);
+}
+
+/* Table headers also get glass treatment */
+html:not(.dark) thead {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(233, 228, 213, 0.85);
+}
+
+html.dark thead {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(24, 24, 27, 0.85);
+}
+
+/* ─── Global ambient effects (grid dots only) ─────────────────────────────── */
+[data-slot="sidebar-inset"] {
+    background-color: var(--background);
+    position: relative;
+    isolation: isolate;
+}
+
+[data-slot="sidebar-inset"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: radial-gradient(rgba(148, 163, 184, 0.3) 1px, transparent 0);
+    background-size: 24px 24px;
+    animation: dot-shimmer 2.4s ease-in-out infinite;
+}
+
+html.dark [data-slot="sidebar-inset"]::after {
+    background-image: radial-gradient(rgba(148, 163, 184, 0.15) 1px, transparent 0);
+}
+
+[data-slot="page-content"] {
+    position: relative;
+    z-index: 1;
+}
+
+/* Header sits above the dot layer with an opaque background */
+[data-slot="sidebar-inset"] > header {
+    position: relative;
+    z-index: 2;
+    background-color: var(--background);
+}
+
+@keyframes dot-shimmer {
+    0%, 100% { opacity: 0.3; }
+    50%      { opacity: 0.7; }
+}
+
+/* ─── Select option styling for dark mode ──────────────────────────────── */
+select {
+    color-scheme: light dark;
+}
+
+select option {
+    background-color: hsl(0 0% 100%);
+    color: hsl(0 0% 3.9%);
+}
+
+html.dark select option {
+    background-color: hsl(0 0% 9%);
+    color: hsl(0 0% 98%);
+}
+
+html.dark select option:checked {
+    background-color: hsl(217.2 91.2% 59.8%);
+    color: hsl(0 0% 98%);
+}
+
+/* ─── Time input clock icon styling for dark mode ──────────────────────── */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+}
+
+html.dark input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+/* ─── Date input calendar icon styling for dark mode ──────────────────────── */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+}
+
+html.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+/* ─── Date input dropdown styling for dark mode ──────────────────────── */
+input[type="date"]::-webkit-input-type-calendar-picker {
+    color-scheme: light;
+}
+
+html.dark input[type="date"] {
+    color-scheme: light dark;
+}
+
+/* ─── Cool custom scrollbar ─────────────────────────────────────────────── */
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(240 4% 20% / 0.55) transparent;
+}
+
+/* WebKit (Chrome / Edge / Safari) */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    /* transparent border creates inset padding so the thumb looks slim and floating */
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    background-color: hsl(240 4% 20% / 0.5);
+    background-image: linear-gradient(
+        180deg,
+        hsl(240 5% 12% / 0.9) 0%,
+        hsl(240 6% 4% / 0.9) 100%
+    );
+    transition: background-image 0.2s ease, box-shadow 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-image: linear-gradient(
+        180deg,
+        hsl(240 5% 8% ) 0%,
+        hsl(0 0% 0%) 100%
+    );
+    box-shadow: 0 0 8px hsl(240 5% 4% / 0.55);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-image: linear-gradient(
+        180deg,
+        hsl(0 0% 0%) 0%,
+        hsl(0 0% 0%) 100%
+    );
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+html.dark * {
+    scrollbar-color: hsl(240 3% 65% / 0.5) transparent;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+    background-color: hsl(240 3% 65% / 0.45);
+    background-image: linear-gradient(
+        180deg,
+        hsl(240 4% 50% / 0.85) 0%,
+        hsl(240 3% 32% / 0.85) 100%
+    );
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+    background-image: linear-gradient(
+        180deg,
+        hsl(240 4% 58%) 0%,
+        hsl(240 4% 40%) 100%
+    );
+    box-shadow: 0 0 10px hsl(0 0% 0% / 0.5);
+}

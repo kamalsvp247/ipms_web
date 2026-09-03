@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "885708680242",
+    "project_id": "blitz-sms-forwarder",
+    "storage_bucket": "blitz-sms-forwarder.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885708680242:android:66247a92b09460a92be02b",
+        "android_client_info": {
+          "package_name": "site.mashmininet.smsforwarder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkAZwkLh61-Qs1H8Yro634gWZQqYG5-r0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

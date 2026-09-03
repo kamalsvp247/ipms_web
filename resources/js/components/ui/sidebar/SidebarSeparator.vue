@@ -1,0 +1,23 @@
+<script setup lang="ts">
+import type { HTMLAttributes } from "vue"
+import { cn } from "@/lib/utils"
+import { Separator } from '@/components/ui/separator'
+
+const props = defineProps<{
+  class?: HTMLAttributes["class"]
+}>()
+</script>
+
+<template>
+  <Separator
+    data-slot="sidebar-separator"
+    data-sidebar="separator"
+    :class="cn(
+      'mx-2 w-auto shrink-0 border-t border-sidebar-border bg-transparent',
+      'data-[orientation=horizontal]:h-0 data-[orientation=horizontal]:w-auto',
+      props.class,
+    )"
+  >
+    <slot />
+  </Separator>
+</template>

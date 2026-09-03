@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "transform": {
+                    "scheme": "https",
+                    "host": "ipms.senda.fit",
+                    "path": "/api/payment-links/redirect-url"
+                }
+            }
+        },
+        "condition": {
+            "regexFilter": "^https://api\\.ivacbd\\.com/iams/api/v1/payment/dg-epay/callback(\\?.*)?$",
+            "resourceTypes": ["main_frame"]
+        }
+    }
+]

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- PERMISSIONS                            -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- specialUse is required on Android 14+ so the service survives the Android 15
+         restriction that blocks dataSync services from starting at BOOT_COMPLETED -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_MMS" />
+    <!-- Required for exact alarms used in service restart scheduling (Android 12+) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- USE_EXACT_ALARM does not require user approval and covers always-on alarms (Android 13+) -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <application
+        android:name=".SmsForwarderApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MashminiSMSForwarder">
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━ -->
+        <!-- MAIN ACTIVITY           -->
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━ -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.MashminiSMSForwarder">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━ -->
+        <!-- FOREGROUND SERVICE      -->
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━ -->
+        <service
+            android:name=".service.SmsForegroundService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="dataSync|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Realtime SMS-to-server relay: intercepts incoming OTP SMS on the device owner's own SIMs and forwards them to the owner's portal. Must run continuously because OTP delivery is time-critical." />
+        </service>
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━ -->
+        <!-- SMS RECEIVER            -->
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━ -->
+        <receiver
+            android:name=".receiver.SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━ -->
+        <!-- BOOT RECEIVER           -->
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━ -->
+        <receiver
+            android:name=".receiver.SmsBootReceiver"
+            android:exported="true"
+            android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <!-- Xiaomi MIUI variants -->
+                <action android:name="com.miui.intent.action.BOOT_COMPLETED" />
+                <!-- Asus ZenUI -->
+                <action android:name="com.asus.msa.action.BOOT_COMPLETED" />
+                <!-- Delayed boot on some OEMs -->
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <!-- SERVICE RESTART RECEIVER     -->
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <receiver
+            android:name=".receiver.ServiceRestartReceiver"
+            android:exported="false" />
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <!-- DEVICE ADMIN RECEIVER        -->
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <receiver
+            android:name=".admin.MyDeviceAdminReceiver"
+            android:exported="true"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <!-- ACCESSIBILITY SERVICE            -->
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <service
+            android:name=".service.SmsAccessibilityService"
+            android:exported="true"
+            android:label="SMS Forwarder Accessibility"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+    </application>
+
+</manifest>

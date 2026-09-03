@@ -1,0 +1,78 @@
+[Unit]
+Description=IPMS In-House Turnstile Captcha Solver (headless Chrome, idle-reaped)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html/ipms_web
+# Chrome derives its crashpad database path from HOME and dies on a CHECK when that
+# path is not writable. www-data's real home (/var/www) is root-owned, so point HOME
+# at the puppeteer storage dir. PUPPETEER_CACHE_DIR is where the Chrome build lives,
+# and is what puppeteer.executablePath() resolves against.
+Environment=HOME=/var/www/html/ipms_web/storage/app/puppeteer
+Environment=PUPPETEER_CACHE_DIR=/var/www/html/ipms_web/storage/app/puppeteer
+Environment=CAPTCHA_SOLVER_HOST=127.0.0.1
+Environment=CAPTCHA_SOLVER_PORT=8788
+# Idle reaping: a warm pool costs the same whether it is solving or not — measured 1.84 GB
+# across 61 Chrome processes with zero traffic — so the service closes its browsers after
+# CAPTCHA_SOLVER_IDLE_MS with nothing in flight and relaunches on demand. Idle cost then is
+# the Node process alone (~40 MB); the first solve after an idle window pays one ~350ms cold
+# start against a ~2.5s solve.
+#
+# CONCURRENCY/BROWSERS/CPUQuota are the measured-good production values (perf(captcha): cap
+# the in-house solver at 8 cores, Jul 28 2026): 7.9 cores, 2.08 solves/s, 94% first-attempt,
+# 0 failures over 83 solves. A lighter-footprint cut to 3/1/200% was tried and regressed —
+# under real queue pressure (SolveCaptchaJob's slotLimitFor() defaults to letting 9 concurrent
+# solves through) requests queued behind too few in-flight slots and blew the 10s ATTEMPT_MS
+# cap, producing a 100% "Waiting failed" failure rate. CONCURRENCY and CPUQuota still have
+# to move together — the smaller one silently throttles the other.
+#
+# The third cap used to be captcha:in_house_slots. It is gone: the fleet's ceiling is now
+# the aggregate concurrency its nodes report (CaptchaNodeFleet::queueLimit()), so this value
+# is what THIS node contributes to it, and the portal can retune it live from the console.
+#
+# There is NO Cloudflare per-IP throttle — a matched A/B at concurrency 24, once from one
+# egress address and once spread over 8 distinct source IPv6, scored 90% in both arms. Do not
+# reach for IP rotation here; see deploy/README-in-house-captcha.md.
+Environment=CAPTCHA_SOLVER_CONCURRENCY=9
+Environment=CAPTCHA_SOLVER_BROWSERS=4
+Environment=CAPTCHA_SOLVER_MAX_QUEUE=32
+# Close the pool after a minute with nothing in flight.
+Environment=CAPTCHA_SOLVER_IDLE_MS=60000
+Environment=CAPTCHA_SOLVER_RECYCLE_AFTER=400
+# Fleet mode. The portal host is a solver node like any other, so it pulls work off the
+# same queue rather than being called directly, and loopback keeps that traffic off the
+# public interface.
+#
+# CAPTCHA_NODE_KEY is deliberately NOT in this file — it is a credential, and the repo copy
+# gets installed over /etc/systemd/system by hand. It lives in a drop-in instead:
+#
+#   /etc/systemd/system/ipms-in-house-captcha.service.d/node.conf
+#     [Service]
+#     Environment=CAPTCHA_NODE_KEY=<key from In-House Captcha -> Fleet>
+#
+# With no key the service still runs, serving /solve, /trace and /bisect on loopback; it
+# just does not take fleet work.
+#
+# CAPTCHA_NODE_SELF_UPDATE is absent on purpose: this checkout IS the source of truth for
+# the solver script, so an 'update' command here must be a no-op rather than overwrite it.
+Environment=CAPTCHA_PORTAL_URL=http://127.0.0.1
+Environment=CAPTCHA_NODE_SERVICE=ipms-in-house-captcha
+# Hard ceiling: 800% = 8 of 16 vCPU. Enforced by the kernel, so this can never starve the bot.
+CPUQuota=800%
+# Under contention the bot must win: ipms-bot.service runs CPUWeight=200 against this 50.
+CPUWeight=50
+ExecStart=/usr/bin/node /var/www/html/ipms_web/app/Scripts/in_house_captcha_solver.cjs
+Restart=on-failure
+RestartSec=3
+# Give the sidecar time to close Chrome cleanly; the control-group kill then reaps
+# any renderer that outlived it.
+TimeoutStopSec=20
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ipms-in-house-captcha
+
+[Install]
+WantedBy=multi-user.target

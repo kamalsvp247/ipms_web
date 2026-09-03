@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Diagnostic Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <h1>API Diagnostic Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+
+        async function testAPIs() {
+            results.innerHTML = '<p>Testing APIs...</p>';
+
+            try {
+                // Test Settings API
+                const settingsRes = await axios.get('/api/settings');
+                results.innerHTML += `<p>✅ Settings API: ${settingsRes.data.length} items</p>`;
+
+                // Test Captcha Providers API
+                const captchaRes = await axios.get('/api/captcha-providers');
+                results.innerHTML += `<p>✅ Captcha Providers API: ${captchaRes.data.length} items</p>`;
+
+                // Test Accounts API
+                const accountsRes = await axios.get('/api/accounts');
+                results.innerHTML += `<p>✅ Accounts API: ${accountsRes.data.length} items</p>`;
+
+                results.innerHTML += '<hr><h2>Settings Data:</h2><pre>' + JSON.stringify(settingsRes.data, null, 2) + '</pre>';
+                results.innerHTML += '<h2>Captcha Providers Data:</h2><pre>' + JSON.stringify(captchaRes.data, null, 2) + '</pre>';
+                results.innerHTML += '<h2>Accounts Data:</h2><pre>' + JSON.stringify(accountsRes.data, null, 2) + '</pre>';
+
+            } catch (error) {
+                results.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+                console.error(error);
+            }
+        }
+
+        testAPIs();
+    </script>
+</body>
+
+</html>

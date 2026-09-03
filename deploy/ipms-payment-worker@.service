@@ -1,0 +1,35 @@
+[Unit]
+# Templated so several run at once: a checkout takes minutes, and a single worker made every
+# payment wait for the one before it regardless of which wallet it used. Same-wallet safety is
+# PaymentWalletLock's job, not the worker count's. Enable with:
+#   systemctl enable --now ipms-payment-worker@{1,2,3}
+# Keep the instance count in step with the payment:automation_concurrency Redis key.
+Description=IPMS Auto Payment Queue Worker %i
+After=network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html/ipms_web
+# HOME must exist and be writable: the driver launches Chrome, and Chrome's crashpad handler
+# aborts on a read-only HOME (www-data's /var/www is root-owned). Same trap as the captcha node.
+Environment=HOME=/var/www/html/ipms_web/storage/app/payment-automation
+# Reuse the Chrome build the captcha solver already downloaded instead of a second copy.
+Environment=PUPPETEER_CACHE_DIR=/var/www/html/ipms_web/storage/app/puppeteer
+# --timeout exceeds the job's own 300s budget so systemd never kills a run mid-checkout, which
+# would leave a charge made but no callback URL recorded.
+ExecStart=/usr/bin/php8.4 artisan queue:work redis --queue=payments --tries=1 --timeout=330 --sleep=2
+# Restart=always, NOT on-failure: `php artisan queue:restart` — which every code deploy runs —
+# makes the worker exit 0 after finishing its current job, and systemd reads that clean exit as
+# the unit having finished rather than as a fault. On 2026-08-09 one queue:restart took out every
+# captcha and payment worker at 07:38:56 and none came back; auto payment would have silently
+# stopped paying with the UI still showing accounts armed.
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ipms-payment-worker-%i
+
+[Install]
+WantedBy=multi-user.target

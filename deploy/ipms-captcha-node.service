@@ -1,0 +1,69 @@
+# Reference copy of the unit public/captcha-install.sh generates on a solver node.
+#
+# The installer writes the real file, substituting the API key, the Node binary path, and
+# CONCURRENCY / BROWSERS / CPUQuota / CPUWeight sized from the box's core count and the
+# chosen profile. This copy exists so the shape is reviewable in the repo — do not install
+# it as-is, the placeholders below are not valid values.
+#
+# Install a node with:
+#   curl -fsSL https://ipms.senda.fit/captcha-install.sh | sudo bash -s -- <NODE_API_KEY>
+#   curl -fsSL https://ipms.senda.fit/captcha-install.sh | sudo bash -s -- <KEY> --profile shared
+#
+# Sizing, from the measured ~4.1 CPU-seconds per solve:
+#   dedicated  concurrency = cores,     CPUQuota = cores * 90%,  CPUWeight = 100
+#   shared     concurrency = cores / 2, CPUQuota = cores * 40%,  CPUWeight = 50
+# 'shared' is for a box that also runs ipms-bot, whose CPUWeight=200 must win contention
+# during the booking window.
+
+[Unit]
+Description=IPMS Captcha Solver Node
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=root
+WorkingDirectory=/opt/ipms-captcha
+# Hides /dev/dri from the service. On a host with a real GPU, Chrome running as root wedges
+# its renderer on the first canvas draw, so Cloudflare's fingerprint never completes: zero
+# tokens, no error and no 403, which reads exactly like IP reputation. --disable-gpu is not
+# sufficient — Chrome still probes the device nodes.
+PrivateDevices=yes
+# Chrome derives its crashpad database path from HOME and dies on a CHECK (SIGTRAP) when
+# that path is not writable — this is load-bearing, not hygiene.
+Environment=HOME=/opt/ipms-captcha/storage
+Environment=PUPPETEER_CACHE_DIR=/opt/ipms-captcha/.cache
+# A node has no repo checkout, so the script's storage paths are pointed here instead of
+# the portal's storage/app tree.
+Environment=CAPTCHA_SOLVER_STORAGE_DIR=/opt/ipms-captcha/storage
+Environment=CAPTCHA_SOLVER_CAPTCHA_DIR=/opt/ipms-captcha/storage/captcha
+# Loopback only. The solver's HTTP surface has no authentication; the node reaches the
+# portal outbound and nothing needs to reach the node.
+Environment=CAPTCHA_SOLVER_HOST=127.0.0.1
+Environment=CAPTCHA_SOLVER_PORT=8788
+Environment=CAPTCHA_SOLVER_CONCURRENCY=%CONCURRENCY%
+Environment=CAPTCHA_SOLVER_BROWSERS=%BROWSERS%
+Environment=CAPTCHA_SOLVER_MAX_QUEUE=32
+# Close the pool after a minute with nothing in flight: a warm pool costs the same idle as
+# busy, and the cost of resuming is one ~350ms cold start against a ~2.5s solve.
+Environment=CAPTCHA_SOLVER_IDLE_MS=60000
+Environment=CAPTCHA_SOLVER_RECYCLE_AFTER=400
+Environment=CAPTCHA_NODE_KEY=%NODE_API_KEY%
+Environment=CAPTCHA_PORTAL_URL=https://ipms.senda.fit
+Environment=CAPTCHA_NODE_SERVICE=ipms-captcha-node
+# Lets the portal push a new solver script to this node without SSH. Only set on an
+# installed copy — never on the portal's own checkout, which is the source of truth.
+Environment=CAPTCHA_NODE_SELF_UPDATE=1
+CPUQuota=%CPU_QUOTA%%
+CPUWeight=%CPU_WEIGHT%
+ExecStart=/usr/local/lib/nodejs/node-22/bin/node /opt/ipms-captcha/solver.cjs
+Restart=on-failure
+RestartSec=5
+# Give the sidecar time to close Chrome cleanly; the control-group kill then reaps any
+# renderer that outlived it.
+TimeoutStopSec=20
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ipms-captcha-node
+
+[Install]
+WantedBy=multi-user.target
