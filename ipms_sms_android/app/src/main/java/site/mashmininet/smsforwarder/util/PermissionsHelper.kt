@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import android.app.role.RoleManager
 import androidx.core.content.ContextCompat
 import site.mashmininet.smsforwarder.admin.MyDeviceAdminReceiver
 import site.mashmininet.smsforwarder.service.SmsAccessibilityService
@@ -19,9 +20,20 @@ import site.mashmininet.smsforwarder.service.SmsAccessibilityService
  */
 object PermissionsHelper {
 
+    fun isDefaultSmsApp(context: Context): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+            context.getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_SMS) == true
+
+    fun defaultSmsRoleIntent(context: Context): android.content.Intent? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            context.getSystemService(RoleManager::class.java)
+                ?.createRequestRoleIntent(RoleManager.ROLE_SMS)
+        } else null
+
+    // Incoming SMS broadcasts contain the message payload; this app never reads the inbox.
+    // Requiring READ_SMS unnecessarily blocks setup on devices that restrict inbox access.
     fun hasSmsPermissions(context: Context): Boolean =
-        isGranted(context, Manifest.permission.RECEIVE_SMS) &&
-            isGranted(context, Manifest.permission.READ_SMS)
+        isGranted(context, Manifest.permission.RECEIVE_SMS)
 
     fun hasPhonePermission(context: Context): Boolean =
         isGranted(context, Manifest.permission.READ_PHONE_STATE)
@@ -64,7 +76,7 @@ object PermissionsHelper {
 
     /** The permissions that must be granted for the app to function at all. */
     fun requiredSmsPermissions(): Array<String> =
-        arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS)
+        arrayOf(Manifest.permission.RECEIVE_SMS)
 
     fun phonePermissions(): Array<String> {
         val perms = mutableListOf(Manifest.permission.READ_PHONE_STATE)

@@ -131,7 +131,7 @@ const { isBangla, setLang, t } = usePublicLang();
                     <p v-if="app.description" class="text-base leading-relaxed text-gray-500 max-w-lg">{{ app.description }}</p>
 
                     <div class="mt-8 flex flex-wrap items-center gap-4">
-                        <a :href="downloadUrl" class="inline-flex items-center gap-2.5 rounded-xl bg-gray-900 px-7 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-black active:scale-[0.98] transition-all">
+                        <a v-if="release" :href="downloadUrl" class="inline-flex items-center gap-2.5 rounded-xl bg-gray-900 px-7 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-black active:scale-[0.98] transition-all">
                             <Download class="h-4 w-4" />
                             {{ t({ bn: 'APK নামায় ফেলো', en: 'Download APK' }) }}
                             <span v-if="release" class="text-gray-400 font-normal">{{ fileSizeMb }}</span>
@@ -345,7 +345,7 @@ const { isBangla, setLang, t } = usePublicLang();
                     <div class="text-center lg:text-left">
                         <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">{{ t({ bn: 'এহনই অ্যাপটা নিয়ে নাও', en: 'Get the app now' }) }}</h2>
                         <p class="mt-3 text-lg text-gray-500 max-w-md">{{ t({ bn: 'ফোনের ক্যামেরাটা QR কোডের দিকে ধরো — নাইলে নিচের বাটনে চাপ দিয়ে সোজা APK নামায় ফেলো।', en: 'Point your phone camera at the QR code — or tap the button below to download the APK directly.' }) }}</p>
-                        <a :href="downloadUrl" class="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-gray-900 px-8 py-4 text-base font-semibold text-white shadow-md hover:bg-black active:scale-[0.98] transition-all">
+                        <a v-if="release" :href="downloadUrl" class="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-gray-900 px-8 py-4 text-base font-semibold text-white shadow-md hover:bg-black active:scale-[0.98] transition-all">
                             <Download class="h-5 w-5" />
                             {{ t({ bn: 'APK নামায় ফেলো', en: 'Download APK' }) }}
                             <span v-if="release" class="text-gray-400 font-normal text-sm">{{ fileSizeMb }}</span>

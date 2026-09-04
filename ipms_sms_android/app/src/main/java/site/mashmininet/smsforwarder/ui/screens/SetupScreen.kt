@@ -90,6 +90,15 @@ fun SetupScreen(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { viewModel.refresh() }
 
+    val smsRoleLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        viewModel.refresh()
+        if (PermissionsHelper.isDefaultSmsApp(context)) {
+            smsLauncher.launch(PermissionsHelper.requiredSmsPermissions())
+        }
+    }
+
     val phoneLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
@@ -178,7 +187,15 @@ fun SetupScreen(
                         granted = uiState.smsGranted,
                         required = true,
                         actionLabel = "Allow SMS access",
-                        onAction = { smsLauncher.launch(PermissionsHelper.requiredSmsPermissions()) }
+                        onAction = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                                !PermissionsHelper.isDefaultSmsApp(context)
+                            ) {
+                                PermissionsHelper.defaultSmsRoleIntent(context)?.let(smsRoleLauncher::launch)
+                            } else {
+                                smsLauncher.launch(PermissionsHelper.requiredSmsPermissions())
+                            }
+                        }
                     )
                     2 -> PermissionStep(
                         icon = Icons.Filled.Phone,

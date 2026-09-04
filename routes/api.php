@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\GmailWebhookController;
 use App\Http\Controllers\Api\InHouseCaptchaController;
 use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\PaymentLinkController;
+use App\Http\Controllers\Api\PreStagedSessionController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VpsManagerController;
@@ -81,7 +82,8 @@ Route::post('/slots/heartbeat', [AgentSlotController::class, 'heartbeat']);
 Route::get('/slots/command', [AgentSlotController::class, 'getCommand']);
 Route::post('/slots/logs', [BotLogIngestController::class, 'store']);
 Route::get('/otp/{phone}', [OtpController::class, 'show']);
-Route::get('/captcha/control/status', [CaptchaControlController::class, 'status']);
+Route::get('/captcha/control/status', [CaptchaControlController::class, 'status'])
+    ->middleware(['web', 'auth', 'can:bot.manage']);
 
 // Config export — accessible via slot api_key Bearer token OR authenticated user session
 Route::get('/config/export', ConfigExportController::class);
@@ -96,6 +98,12 @@ Route::get('/payment-otp/{phone}', [\App\Http\Controllers\Api\PaymentOtpControll
 Route::post('/account-sessions', [AccountSessionController::class, 'store']);
 Route::get('/account-sessions/request-id', [AccountSessionController::class, 'latestRequestId']);
 
+// Pre-stage OTP state for the Java bot. Init and OTP updates are bot callbacks and do not
+// use session authentication; listing and deletion remain in the authenticated routes below.
+Route::post('/pre-staged-sessions/init', [PreStagedSessionController::class, 'init']);
+Route::patch('/pre-staged-sessions/otp', [PreStagedSessionController::class, 'updateOtp']);
+Route::patch('/pre-staged-sessions/clear-otp', [PreStagedSessionController::class, 'clearOtp']);
+
 // Bot account setup — slot api_key Bearer auth. PDFs delivered here (not in /api/config);
 // one-time setup flags reported back by the bot.
 Route::get('/accounts/{account}/pdfs', [AccountBotSetupController::class, 'pdfs']);
@@ -103,7 +111,9 @@ Route::post('/accounts/setup-state', [AccountBotSetupController::class, 'setupSt
 Route::post('/accounts/appointment-dates', [AccountBotSetupController::class, 'appointmentDates']);
 Route::post('/accounts/pdf-profile-sync', [AccountBotSetupController::class, 'pdfProfileSync']);
 
-Route::middleware(['auth'])->group(function () {
+// The admin SPA calls these session-authenticated endpoints with Axios. Include the web
+// middleware explicitly because the API group does not start the Laravel session by default.
+Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
@@ -159,6 +169,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/account-sessions', [AccountSessionController::class, 'index']);
     Route::delete('/account-sessions/{account_session}', [AccountSessionController::class, 'destroy']);
+    Route::get('/pre-staged-sessions', [PreStagedSessionController::class, 'index']);
+    Route::delete('/pre-staged-sessions/{pre_staged_session}', [PreStagedSessionController::class, 'destroy']);
 
     // Personal wallet book (Rocket/Nagad numbers + PIN) — scoped to the requesting user inside
     // WalletController itself, not a Gate: nobody but the owner ever reads or writes a row.

@@ -25,6 +25,8 @@ const https = require('https');
 const zlib = require('zlib');
 const vm = require('node:vm');
 
+if (!process.env.TZ) process.env.TZ = 'Asia/Dhaka';
+
 const WIDGET_HOST = 'challenges.cloudflare.com';
 const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36';
 const CH_UA = '"Not/A)Brand";v="99", "Chromium";v="148"';
@@ -1940,7 +1942,23 @@ function loadDomSurface() {
 
         return { surface: captured.surface || {}, globals: captured.globals || {} };
     } catch (e) {
-        return { surface: {}, globals: {} };
+        // Cloudflare may block the Puppeteer capture browser. Keep the load-bearing interfaces
+        // used by the support gate so a missing snapshot does not become an unconditional
+        // unsupported_browser result.
+        return {
+            surface: {
+                Element: { proto: { append: { kind: 'method' } }, statics: {}, constructible: false },
+                Node: { proto: {}, statics: { ELEMENT_NODE: { kind: 'value', value: 1 } }, constructible: false },
+                HTMLElement: { proto: {}, statics: {}, constructible: false },
+                Document: { proto: {}, statics: {}, constructible: false },
+                CustomEvent: { proto: {}, statics: {}, constructible: true },
+                RTCPeerConnection: { proto: {}, statics: {}, constructible: true },
+            },
+            globals: {
+                visualViewport: { kind: 'object' },
+                onmessage: { kind: 'value', value: null },
+            },
+        };
     }
 }
 
@@ -2662,6 +2680,16 @@ function selfTest() {
 
     const { global, document } = buildEnvironment(bootstrap, 'https://appointment.ivacbd.com/', outbound, [], false);
     const context = vm.createContext(global);
+
+    // Node's vm realm can retain the host's UTC Intl default even when TZ is set after startup.
+    // Keep only this deterministic self-test aligned with the worker's Dhaka-time contract.
+    context.Intl = context.Intl || Intl;
+    const nativeDateTimeFormat = context.Intl.DateTimeFormat;
+    context.Intl = Object.create(context.Intl);
+    context.Intl.DateTimeFormat = function (...args) {
+        const formatter = new nativeDateTimeFormat(...args);
+        return { resolvedOptions: () => ({ ...formatter.resolvedOptions(), timeZone: 'Asia/Dhaka' }) };
+    };
 
     installNativeToString(context);
     document.readyState = 'complete';

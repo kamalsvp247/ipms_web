@@ -6,6 +6,8 @@ use App\Models\CaptchaProvider;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class SettingSeeder extends Seeder
 {
@@ -35,6 +37,23 @@ class SettingSeeder extends Seeder
         ]);
 
         $superAdmin = User::where('role', 'super_admin')->first();
+
+        if ($superAdmin === null) {
+            $temporaryPassword = env('SEED_ADMIN_PASSWORD') ?: Str::password(24);
+            $adminEmail = env('SEED_ADMIN_EMAIL', 'admin@localhost');
+
+            $superAdmin = User::create([
+                'name' => 'Admin',
+                'email' => $adminEmail,
+                'password' => Hash::make($temporaryPassword),
+                'role' => User::ROLE_SUPER_ADMIN,
+                'is_approved' => true,
+                'approved_at' => now(),
+            ]);
+
+            $this->command?->info("Admin created: {$adminEmail}");
+            $this->command?->warn('Temporary password: '.$temporaryPassword);
+        }
 
         $providers = [
             [

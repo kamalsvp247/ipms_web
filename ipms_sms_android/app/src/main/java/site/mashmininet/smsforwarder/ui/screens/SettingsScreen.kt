@@ -176,7 +176,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(), snackbarHostState
                 description = "Required to read and receive incoming SMS",
                 isGranted = uiState.smsPermissionGranted,
                 showToggle = true,
-                onToggle = { smsPermissionLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS)) }
+                onToggle = { smsPermissionLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS)) }
             )
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f), thickness = 0.5.dp)

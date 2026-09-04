@@ -24,7 +24,7 @@ class CaptchaAlgorithmController extends Controller
     public function __construct(
         protected CaptchaAlgorithmService $service,
         protected CaptchaBundleVersionService $versions,
-        protected ExtractorRepairService $repair,
+        protected ?ExtractorRepairService $repair = null,
     ) {}
 
     /**
@@ -94,7 +94,7 @@ class CaptchaAlgorithmController extends Controller
             // unattended repair for the scheduler to pick up. It cannot run inline: a repair
             // takes ~25 minutes and needs the scheduler user's Claude credentials.
             if (! $extractionClean) {
-                $result['repair'] = $this->repair->queueFromAnalysis(
+                $result['repair'] = ($this->repair ?? app(ExtractorRepairService::class))->queueFromAnalysis(
                     $result,
                     $result['auto_applied']['reason'] ?? 'extraction unclean'
                 );
@@ -162,7 +162,7 @@ class CaptchaAlgorithmController extends Controller
     public function engine(): JsonResponse
     {
         return response()->json($this->service->engineStatus() + [
-            'repair' => $this->repair->status(),
+            'repair' => ($this->repair ?? app(ExtractorRepairService::class))->status(),
         ]);
     }
 
