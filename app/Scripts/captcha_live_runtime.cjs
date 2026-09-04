@@ -168,6 +168,12 @@ function load(bundlePath) {
     const savedSetImmediate = globalThis.setImmediate;
     const savedClearImmediate = globalThis.clearImmediate;
     const savedMessageChannel = globalThis.MessageChannel;
+    // Node 22 exposes a read-only global navigator. The shared browser stub uses
+    // Object.assign() to install its deterministic navigator, so remove the
+    // configurable host property for the duration of bundle evaluation.
+    const savedNavigator = globalThis.navigator;
+    const hadNavigator = Object.prototype.hasOwnProperty.call(globalThis, 'navigator');
+    try { delete globalThis.navigator; } catch (_) {}
     globalThis.__IVAC_ENC = {};
     try {
         vm.runInThisContext(wrapped, { filename: 'ivac-bundle.patched.js' });
@@ -175,6 +181,9 @@ function load(bundlePath) {
         globalThis.setImmediate = savedSetImmediate;
         globalThis.clearImmediate = savedClearImmediate;
         globalThis.MessageChannel = savedMessageChannel;
+        if (hadNavigator) {
+            try { Object.defineProperty(globalThis, 'navigator', { value: savedNavigator, configurable: true, writable: true }); } catch (_) {}
+        }
     }
 
     const registry = globalThis.__IVAC_ENC || {};
