@@ -558,17 +558,30 @@ PS, ['$PARENT_PID' => $parentPid]);
             $mvn = 'mvn.cmd';
         }
 
-        // Fix any root-owned files leftover from manual mvn runs so www-data can write.
+        // Fix files left by a previous build while preserving the current service user;
+        // hard-coding www-data breaks local development builds running as another user.
         if (! $this->isWindows()) {
-            Process::fromShellCommandline('sudo chown -R www-data:www-data '.escapeshellarg($this->cwd).' 2>/dev/null || true')->run();
+            $uid = function_exists('posix_geteuid') ? posix_geteuid() : getmyuid();
+            $user = function_exists('posix_getpwuid') ? (posix_getpwuid($uid)['name'] ?? '') : '';
+            $gid = function_exists('posix_getegid') ? posix_getegid() : $uid;
+            $group = function_exists('posix_getgrgid') ? (posix_getgrgid($gid)['name'] ?? '') : '';
+            if ($user && $group) {
+                Process::fromShellCommandline('sudo chown -R '.escapeshellarg($user.':'.$group).' '.escapeshellarg($this->cwd).' 2>/dev/null || true')->run();
+            }
         }
 
         // Use -Dmaven.test.skip=true to skip both test compilation and execution.
         // Broken test files (reference removed packages) cause compilation failures with -DskipTests.
         $process = Process::fromShellCommandline(escapeshellarg($mvn).' clean package -Dmaven.test.skip=true 2>&1', $this->cwd);
         $process->setTimeout(300);
-        // Ensure JAVA_HOME is set for Maven to use JDK 26
-        $process->setEnv(array_merge($_ENV, ['JAVA_HOME' => '/usr/lib/jvm/jdk-26']));
+        // Maven needs a valid JDK. Prefer an explicitly configured JAVA_HOME, then
+        // discover the installed java binary instead of assuming a distro-specific path.
+        $javaHome = getenv('JAVA_HOME') ?: ($_ENV['JAVA_HOME'] ?? '');
+        if (! $javaHome || ! is_dir($javaHome)) {
+            $javaBinary = trim((string) shell_exec('command -v java 2>/dev/null'));
+            $javaHome = $javaBinary ? dirname(dirname(realpath($javaBinary))) : '';
+        }
+        $process->setEnv(array_merge($_ENV, $javaHome ? ['JAVA_HOME' => $javaHome] : []));
         $process->run();
 
         $output = $process->getOutput();
