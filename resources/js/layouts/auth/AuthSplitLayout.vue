@@ -43,14 +43,11 @@ defineProps<{
                 class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[21.875rem]"
             >
                 <div class="flex flex-col items-center space-y-2 text-center">
-                    <!-- Intro video, positioned above the title -->
-                    <video
-                        class="h-20 w-20 rounded-2xl border border-zinc-500/40 object-cover mix-blend-multiply dark:border-zinc-400/30 dark:mix-blend-normal"
-                        src="/videos/duronto-intro.mp4"
-                        autoplay
-                        muted
-                        loop
-                        playsinline
+                    <!-- DURONTO brand logo, positioned above the title -->
+                    <img
+                        src="/images/duronto-logo.svg"
+                        alt="Duronto"
+                        class="h-20 w-20 rounded-2xl border border-zinc-500/40 object-contain p-2 dark:border-zinc-400/30"
                     />
                     <h1 class="text-xl font-medium tracking-tight" v-if="title">
                         {{ title }}
