@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Blitz SMS Forwarder"
+rootProject.name = "Duronto SMS Forwarder"
 include(":app")

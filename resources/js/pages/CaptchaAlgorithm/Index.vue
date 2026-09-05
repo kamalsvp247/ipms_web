@@ -991,7 +991,7 @@ Diagnose with the real extractor, not by reading regexes:
 
 Then make it functional end to end:
 - Run CaptchaAlgorithmService::analyze('') as www-data so settings.ivac_endpoints is re-synced, and confirm the monitor's endpoints table shows the corrected value.
-- Confirm delivery: GET /api/config with a slot Bearer token must carry the corrected "endpoints" object, and ConfigExportService must emit the same. If you touched the shape, check the Java AppConfig getter and bump BotVersion (pattern blitz_v_X.Y) — a Java behaviour change needs a JAR rebuild via the portal button, never mvn package as root.
+- Confirm delivery: GET /api/config with a slot Bearer token must carry the corrected "endpoints" object, and ConfigExportService must emit the same. If you touched the shape, check the Java AppConfig getter and bump BotVersion (pattern duronto_v_X.Y) — a Java behaviour change needs a JAR rebuild via the portal button, never mvn package as root.
 - /ivac-endpoints is the manual override page — verify the value is editable and persists there.
 
 Then test:
@@ -1025,7 +1025,7 @@ Diagnose:
 Then make it functional:
 - Run CaptchaAlgorithmService::analyze('') as www-data — it calls syncReserveSlotId() and syncRequestConstants() and updates the settings row; the monitor's "Bundle-synced request constants" table should then show detected == previous with changed=true on the run that healed it.
 - Confirm delivery to the bot: GET /api/config must carry reserveSlotId, paymentConfigId and reserveRequestMeta, and ConfigExportService must emit the same values (keep both in sync).
-- If any Java call site needed changing, bump BotVersion (blitz_v_X.Y) and rebuild the JAR via the portal button — never mvn package as root.
+- If any Java call site needed changing, bump BotVersion (duronto_v_X.Y) and rebuild the JAR via the portal button — never mvn package as root.
 
 Then test:
 - Extend tests/Feature/Captcha/RequestConstantsExtractorTest.php, tests/Feature/Captcha/RequestConstantsCacheTest.php and tests/Feature/Captcha/ConstantSyncReportingTest.php (the last one covers the detected/previous/changed reporting the monitor renders).

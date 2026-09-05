@@ -10,7 +10,7 @@
                 <ConnectionSetting>
                   <option name="appId" value="site.mashmininet.smsforwarder" />
                   <option name="mobileSdkAppId" value="1:885708680242:android:66247a92b09460a92be02b" />
-                  <option name="projectId" value="blitz-sms-forwarder" />
+                  <option name="projectId" value="duronto-sms-forwarder" />
                   <option name="projectNumber" value="885708680242" />
                 </ConnectionSetting>
               </option>

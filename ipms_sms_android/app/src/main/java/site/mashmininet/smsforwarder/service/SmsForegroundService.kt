@@ -123,7 +123,7 @@ class SmsForegroundService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("SMS Forwarder active")
             .setContentText("Monitoring incoming SMS and forwarding in real time")
-            .setSmallIcon(R.drawable.ic_stat_blitz)
+            .setSmallIcon(R.drawable.ic_stat_duronto)
             .setContentIntent(pendingIntent)
             .setOngoing(true) // Non-dismissible
             .setSilent(true)

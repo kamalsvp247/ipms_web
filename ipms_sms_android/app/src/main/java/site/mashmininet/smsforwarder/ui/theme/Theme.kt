@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val BlitzLightColorScheme = lightColorScheme(
+private val DurontoLightColorScheme = lightColorScheme(
     primary              = Primary,
     onPrimary            = PrimaryForeground,
     secondary            = Primary,
@@ -53,7 +53,7 @@ fun MashminiSMSForwarderTheme(
     }
 
     MaterialTheme(
-        colorScheme = BlitzLightColorScheme,
+        colorScheme = DurontoLightColorScheme,
         typography = AppTypography,
         content = content
     )

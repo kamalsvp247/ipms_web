@@ -1,8 +1,8 @@
 {
   "project_info": {
     "project_number": "885708680242",
-    "project_id": "blitz-sms-forwarder",
-    "storage_bucket": "blitz-sms-forwarder.firebasestorage.app"
+    "project_id": "duronto-sms-forwarder",
+    "storage_bucket": "duronto-sms-forwarder.firebasestorage.app"
   },
   "client": [
     {

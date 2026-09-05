@@ -17,7 +17,7 @@ function makeApkRelease(array $overrides = []): ApkRelease
         'version_name' => '2.0',
         'version_code' => 20,
         'file_path' => 'apk-releases/test.apk',
-        'file_name' => 'Blitz-v2.0.apk',
+        'file_name' => 'Duronto-v2.0.apk',
         'file_size' => 14,
         'checksum_sha256' => hash('sha256', 'fake-apk-bytes'),
         'is_active' => true,
@@ -83,7 +83,7 @@ test('super admin can update app information with logo', function () {
     $admin = User::factory()->create(['role' => 'super_admin']);
 
     $response = $this->actingAs($admin)->post('/api/apk/info', [
-        'app_title' => 'Blitz',
+        'app_title' => 'Duronto',
         'tagline' => 'Fast SMS forwarding',
         'description' => 'Forwards SMS in real time.',
         'developer_name' => 'Senda Japan Ltd',
@@ -94,7 +94,7 @@ test('super admin can update app information with logo', function () {
 
     $response->assertOk();
     $info = ApkAppInfo::instance();
-    expect($info->app_title)->toBe('Blitz');
+    expect($info->app_title)->toBe('Duronto');
     expect($info->features)->toBe(['Instant forwarding', 'Boot persistence']);
     expect($info->logo_path)->not->toBeNull();
     Storage::disk('public')->assertExists($info->logo_path);
@@ -107,7 +107,7 @@ test('super admin can upload a release and it becomes active', function () {
     $previous = makeApkRelease();
 
     $response = $this->actingAs($admin)->post('/api/apk/releases', [
-        'apk' => UploadedFile::fake()->create('Blitz-v2.1.apk', 2048),
+        'apk' => UploadedFile::fake()->create('Duronto-v2.1.apk', 2048),
         'version_name' => '2.1',
         'version_code' => 21,
         'changelog' => "New stuff\nBug fixes",

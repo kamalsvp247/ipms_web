@@ -106,7 +106,7 @@ class BypassIpController extends Controller
             CURLOPT_CONNECTTIMEOUT => 3,
             CURLOPT_HTTPHEADER => [
                 'Host: api.ivacbd.com',
-                'User-Agent: BLITZ-Portal/1.0',
+                'User-Agent: DURONTO-Portal/1.0',
             ],
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
@@ -191,7 +191,7 @@ class BypassIpController extends Controller
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 10,
                 CURLOPT_CONNECTTIMEOUT => 3,
-                CURLOPT_HTTPHEADER => ['Host: api.ivacbd.com', 'User-Agent: BLITZ-Portal/1.0'],
+                CURLOPT_HTTPHEADER => ['Host: api.ivacbd.com', 'User-Agent: DURONTO-Portal/1.0'],
                 CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_SSL_VERIFYHOST => false,
                 CURLOPT_CERTINFO => true,

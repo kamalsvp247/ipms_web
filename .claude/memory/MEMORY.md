@@ -100,7 +100,7 @@
 - [Don't over-investigate small changes](feedback_minimal_for_small_changes.md) — when user prescribes the fix, skip the cause-and-effect analysis
 - [Keep JWT, resend OTP — don't re-signin](feedback_jwt_resend_otp.md) — OTP poll-timeout/verify-mismatch must resend forgot-password (dual channel) while JWT is still valid; restart only when JWT about to expire
 - [Don't share research publicly](feedback_no_public_sharing.md) — never expose captcha/bot/IVAC research to external services or public channels
-- [Bump bot version on every Java change](feedback_bot_version_bump.md) — update `BotVersion.VERSION` (pattern: `blitz_v_X.Y`) with every Java bot feature or behaviour change
+- [Bump bot version on every Java change](feedback_bot_version_bump.md) — update `BotVersion.VERSION` (pattern: `duronto_v_X.Y`) with every Java bot feature or behaviour change
 - [Captcha 400 debug protocol](feedback_captcha_debug_protocol.md) — 3-way PHP/JS/Python output comparison first; always verify hex constants with python3
 - [Captcha algo fix order](feedback_captcha_algo_fix_order.md) — on "fix captcha algorithm": patch live-JS sidecar FIRST (bot stays live), then fix Python analyzer
 - [Short simple summaries](feedback_short_simple_summaries.md) — always a few plain lines: what broke, what changed, what it means. No long write-ups

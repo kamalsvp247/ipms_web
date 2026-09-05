@@ -271,7 +271,7 @@ private fun BrandTitle() {
         Spacer(Modifier.width(8.dp))
         Column {
             Text(
-                "BLITZ",
+                "DURONTO",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold,

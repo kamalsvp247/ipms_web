@@ -60,7 +60,7 @@ const detectExtension = (): void => {
         return;
     }
     try {
-        chromeApi.runtime.sendMessage(id, { type: 'BLITZ_PAYMENT_HELPER_PING' }, (resp: { installed?: boolean; version?: string } | undefined) => {
+        chromeApi.runtime.sendMessage(id, { type: 'DURONTO_PAYMENT_HELPER_PING' }, (resp: { installed?: boolean; version?: string } | undefined) => {
             if (chromeApi.runtime.lastError || !resp?.installed) {
                 installState.value = 'not_installed';
                 return;
@@ -85,16 +85,16 @@ const startDownload = (): void => {
 
 const features = computed(() => [
     { icon: Link2, title: t({ bn: 'নিজে নিজেই লিংক খপ কইরে ধরে', en: 'Auto-captures the callback' }), text: t({ bn: 'ব্রাউজারে IVAC dg-epay পেমেন্টের রিডাইরেক্ট লিংকে ঢুকলিই সাথে সাথে খপ কইরে ধইরে ফেলে — তোমার কপি-পেস্ট করার কোনো দরকারই নাই গা।', en: 'Detects the IVAC dg-epay payment redirect URL the moment your browser lands on it — no copy-paste.' }) },
-    { icon: Zap, title: t({ bn: 'চোখের পলকে পাঠায় দেয়', en: 'Instant hand-off' }), text: t({ bn: 'রিডাইরেক্ট লিংকটা সোজা BLITZ পোর্টালে চালান কইরে দেয়, আর ওই পেমেন্ট লিংক নিজে নিজেই কাম সাইরে ফেলে। তুমি খালি বইসে বইসে দেখো।', en: 'Forwards the redirect URL straight to the BLITZ portal so the matching payment link completes on its own.' }) },
-    { icon: ShieldCheck, title: t({ bn: 'খালি নিজের কাম, বাড়তি প্যাচাল নাই', en: 'Scoped & silent' }), text: t({ bn: 'খালি IVAC পেমেন্ট ডোমেইন আর BLITZ পোর্টালেই চলে। পপ-আপের ঝামেলা নাই, অ্যাকাউন্ট লাগে না, আর কোনো কিছুতেই নাক গলায় না।', en: 'Runs only on the IVAC payment domain and the BLITZ portal. No pop-ups, no accounts, nothing else touched.' }) },
+    { icon: Zap, title: t({ bn: 'চোখের পলকে পাঠায় দেয়', en: 'Instant hand-off' }), text: t({ bn: 'রিডাইরেক্ট লিংকটা সোজা DURONTO পোর্টালে চালান কইরে দেয়, আর ওই পেমেন্ট লিংক নিজে নিজেই কাম সাইরে ফেলে। তুমি খালি বইসে বইসে দেখো।', en: 'Forwards the redirect URL straight to the DURONTO portal so the matching payment link completes on its own.' }) },
+    { icon: ShieldCheck, title: t({ bn: 'খালি নিজের কাম, বাড়তি প্যাচাল নাই', en: 'Scoped & silent' }), text: t({ bn: 'খালি IVAC পেমেন্ট ডোমেইন আর DURONTO পোর্টালেই চলে। পপ-আপের ঝামেলা নাই, অ্যাকাউন্ট লাগে না, আর কোনো কিছুতেই নাক গলায় না।', en: 'Runs only on the IVAC payment domain and the DURONTO portal. No pop-ups, no accounts, nothing else touched.' }) },
 ]);
 
 const steps = computed(() => [
-    t({ bn: 'blitz-payment-helper.zip টা নামায় নিয়ে আনজিপ কইরে ফেলো।', en: 'Download and unzip blitz-payment-helper.zip.' }),
+    t({ bn: 'duronto-payment-helper.zip টা নামায় নিয়ে আনজিপ কইরে ফেলো।', en: 'Download and unzip duronto-payment-helper.zip.' }),
     t({ bn: 'chrome://extensions খোলো (edge://extensions / brave://extensions হইলেও চলবে)।', en: 'Open chrome://extensions (or edge://extensions / brave://extensions).' }),
     t({ bn: 'উপরে ডান কোণার Developer mode টগলটা অন কইরে দাও।', en: 'Enable Developer mode (top-right toggle).' }),
-    t({ bn: '"Load unpacked"-এ চাপ দিয়ে আনজিপ করা blitz-payment-helper ফোল্ডারটা দেখায় দাও।', en: 'Click "Load unpacked" and select the unzipped blitz-payment-helper folder.' }),
-    t({ bn: 'টুলবারে BLITZ-এর বাজ পড়া আইকনটা দেখা গেলিই — ব্যস, কাম শ্যাষ।', en: 'The BLITZ bolt icon appears in your toolbar — you are done.' }),
+    t({ bn: '"Load unpacked"-এ চাপ দিয়ে আনজিপ করা duronto-payment-helper ফোল্ডারটা দেখায় দাও।', en: 'Click "Load unpacked" and select the unzipped duronto-payment-helper folder.' }),
+    t({ bn: 'টুলবারে DURONTO-এর বাজ পড়া আইকনটা দেখা গেলিই — ব্যস, কাম শ্যাষ।', en: 'The DURONTO bolt icon appears in your toolbar — you are done.' }),
 ]);
 
 const ctaLabel = computed(() => {
@@ -160,7 +160,7 @@ const ctaLabel = computed(() => {
 
             <p class="max-w-2xl text-base leading-relaxed text-gray-500">
                 {{ t({
-                    bn: 'ব্রাউজারে IVAC dg-epay পেমেন্টের রিডাইরেক্ট লিংকটা খপ কইরে ধইরে BLITZ পোর্টালে পাঠায় দেয়, আর পেমেন্ট লিংকগুলা নিজে নিজেই কাম সাইরে ফেলে। তুমি নিশ্চিন্তে বইসে থাকো।',
+                    bn: 'ব্রাউজারে IVAC dg-epay পেমেন্টের রিডাইরেক্ট লিংকটা খপ কইরে ধইরে DURONTO পোর্টালে পাঠায় দেয়, আর পেমেন্ট লিংকগুলা নিজে নিজেই কাম সাইরে ফেলে। তুমি নিশ্চিন্তে বইসে থাকো।',
                     en: app.description ?? '',
                 }) }}
             </p>

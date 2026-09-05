@@ -12,9 +12,9 @@ class ApkDistributionSeeder extends Seeder
     public function run(): void
     {
         ApkAppInfo::firstOrCreate([], [
-            'app_title' => 'Blitz SMS Forwarder',
+            'app_title' => 'Duronto SMS Forwarder',
             'tagline' => 'Real-time SMS to portal. Zero friction.',
-            'description' => 'Blitz forwards incoming SMS messages to the IPMS portal in real time. Built for reliability: foreground service, boot persistence, and OEM battery-optimization bypass out of the box.',
+            'description' => 'Duronto forwards incoming SMS messages to the IPMS portal in real time. Built for reliability: foreground service, boot persistence, and OEM battery-optimization bypass out of the box.',
             'package_name' => 'site.mashmininet.smsforwarder',
             'developer_name' => 'Senda Japan Ltd',
             'features' => [
@@ -28,7 +28,7 @@ class ApkDistributionSeeder extends Seeder
             'is_published' => true,
         ]);
 
-        $sourcePath = public_path('blitz.apk');
+        $sourcePath = public_path('duronto.apk');
 
         if (ApkRelease::count() > 0 || ! is_file($sourcePath)) {
             return;
@@ -41,10 +41,10 @@ class ApkDistributionSeeder extends Seeder
             'version_name' => '2.0',
             'version_code' => 20,
             'file_path' => $storedPath,
-            'file_name' => 'Blitz-v2.0.apk',
+            'file_name' => 'Duronto-v2.0.apk',
             'file_size' => filesize($sourcePath),
             'checksum_sha256' => hash_file('sha256', $sourcePath),
-            'changelog' => "Redesigned setup flow with guided permissions\nDual-SIM slot detection\nNew Blitz branding and adaptive icons\nForeground service reliability improvements",
+            'changelog' => "Redesigned setup flow with guided permissions\nDual-SIM slot detection\nNew Duronto branding and adaptive icons\nForeground service reliability improvements",
             'min_android' => '8.0',
             'is_active' => true,
             'released_at' => now(),

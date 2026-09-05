@@ -24,14 +24,11 @@ defineProps<{
             <!-- Ambient 3D ocean/particle animation, layered on top of the video -->
             <CyberOceanBackground class="opacity-80" />
             <Link :href="home()" class="relative z-20 inline-block">
-                <picture>
-                    <source srcset="/images/blitz-logo.webp" type="image/webp" />
-                    <img
-                        src="/images/blitz-logo.png"
-                        alt="Blitz"
-                        class="h-16 w-16 rounded-lg object-contain mix-blend-multiply dark:mix-blend-normal"
-                    />
-                </picture>
+                <img
+                    src="/images/duronto-logo.svg"
+                    alt="Duronto"
+                    class="h-16 w-16 rounded-lg object-contain"
+                />
             </Link>
             <div class="relative z-20 mt-auto">
                 <blockquote class="space-y-2">
@@ -49,7 +46,7 @@ defineProps<{
                     <!-- Intro video, positioned above the title -->
                     <video
                         class="h-20 w-20 rounded-2xl border border-zinc-500/40 object-cover mix-blend-multiply dark:border-zinc-400/30 dark:mix-blend-normal"
-                        src="/videos/blitz-intro.mp4"
+                        src="/videos/duronto-intro.mp4"
                         autoplay
                         muted
                         loop

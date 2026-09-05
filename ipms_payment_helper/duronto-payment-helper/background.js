@@ -7,13 +7,13 @@ const API_URL =
 const handledUrls = new Set();
 
 chrome.runtime.onInstalled.addListener(() => {
-    console.log("[BLITZ IVAC Helper] Extension installed.");
+    console.log("[DURONTO IVAC Helper] Extension installed.");
 });
 
-// Lets the BLITZ portal landing page detect that the extension is installed and
+// Lets the DURONTO portal landing page detect that the extension is installed and
 // which version, so it can show "Installed / Update available" instead of "Add".
 chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
-    if (message && message.type === "BLITZ_PAYMENT_HELPER_PING") {
+    if (message && message.type === "DURONTO_PAYMENT_HELPER_PING") {
         sendResponse({
             installed: true,
             version: chrome.runtime.getManifest().version
@@ -60,6 +60,6 @@ async function handleCallback(tabId, url) {
         });
 
     } catch (err) {
-        console.error("[BLITZ IVAC Helper] Failed:", err);
+        console.error("[DURONTO IVAC Helper] Failed:", err);
     }
 }

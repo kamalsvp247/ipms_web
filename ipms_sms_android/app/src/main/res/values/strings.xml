@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Blitz</string>
-    <string name="accessibility_service_description">Blitz accessibility service keeps the app running in the background to ensure reliable SMS forwarding.</string>
-    <string name="device_admin_description">Blitz device admin prevents the app from being force-stopped or uninstalled to ensure continuous operation.</string>
+    <string name="app_name">Duronto</string>
+    <string name="accessibility_service_description">Duronto accessibility service keeps the app running in the background to ensure reliable SMS forwarding.</string>
+    <string name="device_admin_description">Duronto device admin prevents the app from being force-stopped or uninstalled to ensure continuous operation.</string>
 </resources>

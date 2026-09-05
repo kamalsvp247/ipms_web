@@ -112,7 +112,7 @@ class BypassIpScanner
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT_MS => $readTimeoutMs,
                 CURLOPT_CONNECTTIMEOUT_MS => $connectTimeoutMs,
-                CURLOPT_HTTPHEADER => ['Host: api.ivacbd.com', 'User-Agent: BLITZ-Portal/1.0'],
+                CURLOPT_HTTPHEADER => ['Host: api.ivacbd.com', 'User-Agent: DURONTO-Portal/1.0'],
                 CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_SSL_VERIFYHOST => false,
                 CURLOPT_CERTINFO => true,

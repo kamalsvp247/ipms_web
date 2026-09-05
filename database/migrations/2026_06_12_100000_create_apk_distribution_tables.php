@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('apk_app_infos', function (Blueprint $table) {
             $table->id();
-            $table->string('app_title')->default('Blitz SMS Forwarder');
+            $table->string('app_title')->default('Duronto SMS Forwarder');
             $table->string('tagline')->nullable();
             $table->text('description')->nullable();
             $table->string('package_name')->nullable();

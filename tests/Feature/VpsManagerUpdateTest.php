@@ -12,10 +12,10 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => 'super_admin']);
-    Setting::instance()->update(['latest_jar_version' => 'blitz_v_9.9']);
+    Setting::instance()->update(['latest_jar_version' => 'duronto_v_9.9']);
 });
 
-function vpsSlot(string $ip, string $botVersion = 'blitz_v_1.0'): AgentSlot
+function vpsSlot(string $ip, string $botVersion = 'duronto_v_1.0'): AgentSlot
 {
     return AgentSlot::create([
         'name' => 'slot-'.$ip,
@@ -79,10 +79,10 @@ it('does not dispatch when no matched worker exists', function () {
 it('update-all queues jobs only for outdated online workers', function () {
     Queue::fake();
 
-    $outdatedSlot = vpsSlot('10.0.0.10', 'blitz_v_1.0');
+    $outdatedSlot = vpsSlot('10.0.0.10', 'duronto_v_1.0');
     $outdated = makeInstance('10.0.0.10', $outdatedSlot->id);
 
-    $currentSlot = vpsSlot('10.0.0.11', 'blitz_v_9.9');
+    $currentSlot = vpsSlot('10.0.0.11', 'duronto_v_9.9');
     makeInstance('10.0.0.11', $currentSlot->id);
 
     $this->actingAs($this->admin)

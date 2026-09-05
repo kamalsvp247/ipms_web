@@ -367,7 +367,7 @@ onMounted(fetchOverview);
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div>
                                 <Label class="mb-1.5 block text-xs">App Title</Label>
-                                <Input v-model="form.app_title" placeholder="Blitz SMS Forwarder" />
+                                <Input v-model="form.app_title" placeholder="Duronto SMS Forwarder" />
                             </div>
                             <div>
                                 <Label class="mb-1.5 block text-xs">Tagline</Label>

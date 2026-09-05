@@ -308,7 +308,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel(), snackbarHostState
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Blitz SMS Forwarder v${BuildConfig.VERSION_NAME}",
+            text = "Duronto SMS Forwarder v${BuildConfig.VERSION_NAME}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
             textAlign = TextAlign.Center,

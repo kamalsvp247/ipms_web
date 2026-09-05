@@ -22,7 +22,7 @@ val keystoreProperties = Properties().apply {
 }
 
 // Human-friendly APK file name: "<AppName>-v<version>-<yyyyMMdd-HHmm>.apk"
-val appDisplayName = "Blitz"
+val appDisplayName = "Duronto"
 
 android {
     namespace = "site.mashmininet.smsforwarder"

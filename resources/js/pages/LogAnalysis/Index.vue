@@ -228,7 +228,7 @@ type RouteKind = 'proxy' | 'ipv6' | 'ipv4' | 'realip';
 
 // Classify a row's egress route from remote_ip, shipped by the Java bot:
 //   proxy:<host>  → Oxylabs edge-throttle fallback
-//   an IPv6 addr  → per-account IPv6 source binding (blitz_v_7.1+)
+//   an IPv6 addr  → per-account IPv6 source binding (duronto_v_7.1+)
 //   an IPv4 addr  → the worker machine's public IPv4 egress
 //   api.ivacbd.com (or unknown host) → direct Cloudflare egress, no specific IP
 function routeChip(entry: BotLog): { kind: RouteKind; label: string; value: string } {

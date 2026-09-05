@@ -29,6 +29,6 @@ class ApkAppInfo extends Model
 
     public static function instance(): self
     {
-        return self::firstOrCreate([], ['app_title' => 'Blitz SMS Forwarder', 'is_published' => true]);
+        return self::firstOrCreate([], ['app_title' => 'Duronto SMS Forwarder', 'is_published' => true]);
     }
 }

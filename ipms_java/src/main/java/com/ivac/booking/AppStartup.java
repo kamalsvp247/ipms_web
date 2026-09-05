@@ -42,7 +42,7 @@ public class AppStartup {
     public static void run(String[] args) throws IOException {
 
         ProcessManager.killPreviousInstances();
-        log.info("BLITZ Booking Automation starting...");
+        log.info("DURONTO Booking Automation starting...");
 
         String slotApiKey = (args != null && args.length > 0 && !args[0].isBlank()) ? args[0].trim() : EnvLoader.get("SLOT_API_KEY");
 
@@ -188,7 +188,7 @@ public class AppStartup {
         List<AccountConfig> validAccounts = filterValidAccounts(config.getAccounts());
 
         if (validAccounts.isEmpty()) {
-            log.error("No valid accounts found. Check phone and password in BLITZ");
+            log.error("No valid accounts found. Check phone and password in DURONTO");
             return;
         }
 
