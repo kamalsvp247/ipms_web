@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -16,6 +17,8 @@ class PaymentHelperController extends Controller
 {
     private const ZIP_PATH = 'extensions/duronto-payment-helper.zip';
 
+    private const BUNDLED_ZIP_PATH = 'ipms_payment_helper/duronto-payment-helper.zip';
+
     private const SOURCE_MANIFEST = 'ipms_payment_helper/duronto-payment-helper/manifest.json';
 
     private const SOURCE_EXTENSION_ID = 'ipms_payment_helper/extension_id.txt';
@@ -24,7 +27,12 @@ class PaymentHelperController extends Controller
     {
         $manifest = $this->manifest();
         $disk = Storage::disk('public');
-        $exists = $disk->exists(self::ZIP_PATH);
+        $bundledPath = base_path(self::BUNDLED_ZIP_PATH);
+        $exists = $disk->exists(self::ZIP_PATH) || is_file($bundledPath);
+        $size = $disk->exists(self::ZIP_PATH) ? $disk->size(self::ZIP_PATH) : (@filesize($bundledPath) ?: 0);
+        $checksum = $disk->exists(self::ZIP_PATH)
+            ? hash('sha256', $disk->get(self::ZIP_PATH))
+            : (is_file($bundledPath) ? hash_file('sha256', $bundledPath) : null);
 
         return Inertia::render('PaymentHelper/Landing', [
             'app' => [
@@ -37,17 +45,24 @@ class PaymentHelperController extends Controller
             ],
             'file' => $exists ? [
                 'name' => 'duronto-payment-helper.zip',
-                'size' => $disk->size(self::ZIP_PATH),
-                'checksum_sha256' => hash('sha256', $disk->get(self::ZIP_PATH)),
+                'size' => $size,
+                'checksum_sha256' => $checksum,
             ] : null,
             'downloadUrl' => route('payment-helper.download', absolute: true),
         ]);
     }
 
-    public function download(): StreamedResponse
+    public function download(): BinaryFileResponse|StreamedResponse
     {
         $disk = Storage::disk('public');
-        abort_unless($disk->exists(self::ZIP_PATH), 404);
+        if (! $disk->exists(self::ZIP_PATH)) {
+            $bundledPath = base_path(self::BUNDLED_ZIP_PATH);
+            abort_unless(is_file($bundledPath), 404);
+
+            return response()->download($bundledPath, 'duronto-payment-helper.zip', [
+                'Content-Type' => 'application/zip',
+            ]);
+        }
 
         return $disk->download(self::ZIP_PATH, 'duronto-payment-helper.zip', [
             'Content-Type' => 'application/zip',

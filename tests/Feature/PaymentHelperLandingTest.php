@@ -22,8 +22,10 @@ it('serves the extension zip for download when the build exists', function () {
     expect($response->headers->get('content-disposition'))->toContain('duronto-payment-helper.zip');
 });
 
-it('returns 404 when the extension build is missing', function () {
+it('serves the bundled extension when the runtime build is missing', function () {
     Storage::fake('public');
 
-    $this->get('/payment-helper/download')->assertNotFound();
+    $this->get('/payment-helper/download')
+        ->assertOk()
+        ->assertHeader('content-type', 'application/zip');
 });

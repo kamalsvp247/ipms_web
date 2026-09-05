@@ -50,8 +50,10 @@ test('guest can download the active apk and the counter increments', function ()
     expect($release->fresh()->download_count)->toBe(1);
 });
 
-test('download returns 404 when no active release exists', function () {
-    $this->get('/apk/download')->assertNotFound();
+test('download serves the bundled apk when no active release exists', function () {
+    $this->get('/apk/download')
+        ->assertOk()
+        ->assertHeader('content-type', 'application/vnd.android.package-archive');
 });
 
 // ─── Admin access control ────────────────────────────────────────────────────
