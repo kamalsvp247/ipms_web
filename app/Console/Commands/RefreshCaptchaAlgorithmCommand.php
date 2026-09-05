@@ -33,11 +33,11 @@ class RefreshCaptchaAlgorithmCommand extends Command
     {
         $setting = Setting::instance();
         $proxy = trim((string) $setting->captcha_bd_proxy_url);
-
+        // An empty proxy is a valid direct-server mode. Keep retrying it so a
+        // Cloudflare booking notice can heal automatically after it lifts; the
+        // analyzer already accepts an empty proxy and makes a direct request.
         if ($proxy === '') {
-            $this->warn('No captcha_bd_proxy_url configured — run an analysis once from the monitor to set it.');
-
-            return self::SUCCESS;
+            $this->info('No BD proxy configured — probing IVAC directly from this server.');
         }
 
         if ($this->inBookingWindow($setting)) {
