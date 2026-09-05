@@ -1,0 +1,22 @@
+[Unit]
+Description=IPMS Laravel Scheduler
+After=network-online.target mariadb.service redis-server.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/html/ipms_web
+ExecStart=/usr/bin/php8.3 artisan schedule:work --no-interaction
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0007
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ipms-scheduler
+
+[Install]
+WantedBy=multi-user.target
