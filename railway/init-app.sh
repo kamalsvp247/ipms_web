@@ -14,8 +14,12 @@ php artisan view:cache
 if [[ -f "ipms_payment_helper/build.py" ]]; then
   if command -v python3 >/dev/null 2>&1; then
     python3 ipms_payment_helper/build.py
+  elif command -v zip >/dev/null 2>&1; then
+    mkdir -p storage/app/public/extensions
+    rm -f storage/app/public/extensions/duronto-payment-helper.zip
+    (cd ipms_payment_helper && zip -qr ../storage/app/public/extensions/duronto-payment-helper.zip duronto-payment-helper)
   else
-    echo "Warning: python3 is unavailable; skipping extension ZIP rebuild."
+    echo "Warning: neither python3 nor zip is available; skipping extension ZIP rebuild."
   fi
 fi
 
