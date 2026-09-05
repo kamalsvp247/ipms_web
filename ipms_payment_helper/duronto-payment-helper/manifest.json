@@ -8,10 +8,14 @@
     "permissions": ["tabs", "webNavigation", "declarativeNetRequest"],
     "host_permissions": [
         "https://api.ivacbd.com/*",
+        "https://web-production-21253d.up.railway.app/*",
         "https://ipms.senda.fit/*"
     ],
     "externally_connectable": {
-        "matches": ["https://ipms.senda.fit/*"]
+        "matches": [
+            "https://web-production-21253d.up.railway.app/*",
+            "https://ipms.senda.fit/*"
+        ]
     },
     "background": {
         "service_worker": "background.js"
