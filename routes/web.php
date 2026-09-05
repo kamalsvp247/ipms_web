@@ -166,7 +166,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('accounts', function () {
         return Inertia::render('Accounts/Index');
-    })->middleware('can:accounts.read')->name('accounts.index');
+    })->middleware('can:accounts.read')->name('accounts.page');
 
     Route::get('payment-links', function () {
         return Inertia::render('PaymentLinks/Index');
@@ -184,7 +184,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('users', function () {
         return Inertia::render('Users/Index');
-    })->middleware('can:users.manage')->name('users.index');
+    })->middleware('can:users.manage')->name('users.page');
 
     Route::get('captcha-control', function () {
         return Inertia::render('CaptchaControl/Index');
@@ -354,7 +354,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('bypass-ips', function () {
         return Inertia::render('BypassIps/Index');
-    })->middleware('super_admin')->name('bypass-ips.index');
+    })->middleware('super_admin')->name('bypass-ips.page');
 
     Route::get('page-password', [PagePasswordController::class, 'show'])->name('page-password.show');
     Route::post('page-password', [PagePasswordController::class, 'store'])->name('page-password.store');
