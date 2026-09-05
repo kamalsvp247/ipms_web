@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Storage;
 
 function makeApkRelease(array $overrides = []): ApkRelease
 {
-    Storage::fake();
+    Storage::fake('public');
 
-    Storage::put('apk-releases/test.apk', 'fake-apk-bytes');
+    Storage::disk('public')->put('apk-releases/test.apk', 'fake-apk-bytes');
 
     return ApkRelease::create([
         'version_name' => '2.0',
@@ -119,7 +119,7 @@ test('super admin can upload a release and it becomes active', function () {
     expect($newRelease->is_active)->toBeTrue();
     expect($newRelease->checksum_sha256)->toHaveLength(64);
     expect($previous->fresh()->is_active)->toBeFalse();
-    Storage::assertExists($newRelease->file_path);
+    Storage::disk('public')->assertExists($newRelease->file_path);
 });
 
 test('release upload rejects non-apk files', function () {
@@ -150,7 +150,7 @@ test('super admin can delete a release and its file', function () {
     $this->actingAs($admin)->delete("/api/apk/releases/{$release->id}")->assertOk();
 
     expect(ApkRelease::find($release->id))->toBeNull();
-    Storage::assertMissing('apk-releases/test.apk');
+    Storage::disk('public')->assertMissing('apk-releases/test.apk');
 });
 
 // ─── Screenshot management ───────────────────────────────────────────────────

@@ -65,7 +65,7 @@ class ApkManagerController extends Controller
             return response()->json(['message' => 'The uploaded file must be an .apk package.'], 422);
         }
 
-        $path = $file->storeAs('apk-releases', uniqid('apk_', true).'.apk');
+        $path = $file->storeAs('apk-releases', uniqid('apk_', true).'.apk', 'public');
 
         $release = ApkRelease::create([
             'version_name' => $request->string('version_name'),
@@ -73,7 +73,7 @@ class ApkManagerController extends Controller
             'file_path' => $path,
             'file_name' => $file->getClientOriginalName(),
             'file_size' => $file->getSize(),
-            'checksum_sha256' => hash_file('sha256', Storage::path($path)),
+            'checksum_sha256' => hash_file('sha256', Storage::disk('public')->path($path)),
             'changelog' => $request->input('changelog'),
             'min_android' => $request->input('min_android'),
             'released_at' => now(),
@@ -109,7 +109,7 @@ class ApkManagerController extends Controller
 
     public function destroyRelease(ApkRelease $release): JsonResponse
     {
-        Storage::delete($release->file_path);
+        Storage::disk('public')->delete($release->file_path);
         $release->delete();
 
         return response()->json($this->payload());
