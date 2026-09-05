@@ -162,7 +162,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('captcha-providers', function () {
         return Inertia::render('captcha-providers/Index');
-    })->middleware('can:captcha.read')->name('captcha-providers.index');
+    })->middleware('can:captcha.read')->name('captcha-providers.page');
 
     Route::get('accounts', function () {
         return Inertia::render('Accounts/Index');
