@@ -12,7 +12,11 @@ php artisan view:cache
 # the repository. This keeps the public download pages usable after every
 # deploy instead of depending on files left by an older container.
 if [[ -f "ipms_payment_helper/build.py" ]]; then
-  python3 ipms_payment_helper/build.py
+  if command -v python3 >/dev/null 2>&1; then
+    python3 ipms_payment_helper/build.py
+  else
+    echo "Warning: python3 is unavailable; skipping extension ZIP rebuild."
+  fi
 fi
 
 if [[ -f "ipms_sms_android/DURONTO.apk" ]]; then
