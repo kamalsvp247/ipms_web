@@ -7,6 +7,26 @@ php artisan config:cache
 php artisan event:cache
 php artisan view:cache
 
+# Runtime assets are intentionally generated/copied during deployment because
+# public/storage is ignored by git and Railway web containers are rebuilt from
+# the repository. This keeps the public download pages usable after every
+# deploy instead of depending on files left by an older container.
+if [[ -f "ipms_payment_helper/build.py" ]]; then
+  python3 ipms_payment_helper/build.py
+fi
+
+if [[ -f "ipms_sms_android/DURONTO.apk" ]]; then
+  mkdir -p storage/app/public/apk-releases
+  cp -f ipms_sms_android/DURONTO.apk storage/app/public/apk-releases/DURONTO.apk
+fi
+
+# Keep the public APK page aligned with the repository artifact. Set
+# APK_SYNC_BUNDLED_RELEASE=false when releases are managed exclusively from
+# the APK manager UI.
+if [[ "${APK_SYNC_BUNDLED_RELEASE:-true}" == "true" && -f "ipms_sms_android/DURONTO.apk" ]]; then
+  php artisan apk:sync-bundled
+fi
+
 if [[ -n "${BOOTSTRAP_ADMIN_EMAIL:-}" && -n "${BOOTSTRAP_ADMIN_PASSWORD:-}" ]]; then
   php artisan tinker --execute='
     $email = env("BOOTSTRAP_ADMIN_EMAIL");
