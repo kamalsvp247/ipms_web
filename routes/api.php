@@ -195,6 +195,8 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/api-tester/signin', [\App\Http\Controllers\Api\ApiTesterController::class, 'signin']);
         Route::post('/api-tester/send-otp', [\App\Http\Controllers\Api\ApiTesterController::class, 'sendOtp']);
         Route::post('/api-tester/verify-otp', [\App\Http\Controllers\Api\ApiTesterController::class, 'verifyOtp']);
+        Route::post('/api-tester/signin-manual', [\App\Http\Controllers\Api\ApiTesterController::class, 'signinManual']);
+        Route::post('/api-tester/signin-and-verify-otp', [\App\Http\Controllers\Api\ApiTesterController::class, 'signinAndVerifyOtp']);
         Route::post('/api-tester/create-appointment', [\App\Http\Controllers\Api\ApiTesterController::class, 'createAppointment']);
         Route::post('/api-tester/booking-config', [\App\Http\Controllers\Api\ApiTesterController::class, 'bookingConfig']);
         Route::post('/api-tester/reserve-slot', [\App\Http\Controllers\Api\ApiTesterController::class, 'reserveSlot']);

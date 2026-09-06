@@ -10,7 +10,9 @@ use App\Models\BypassIp;
 use App\Models\OtpCode;
 use App\Models\PdfEditProfile;
 use App\Models\Setting;
+use App\Services\Captcha\CaptchaEncryptionService;
 use App\Services\Pdf\PdfFieldEditor;
+use App\Support\CaptchaTokenTransformer;
 use App\Support\JwtClaimExtractor;
 use App\Support\VisaFormPdfParser;
 use Illuminate\Http\JsonResponse;
@@ -320,12 +322,13 @@ class ApiTesterController extends Controller
         ];
     }
 
-    public function signin(Request $request): JsonResponse
+    public function signin(Request $request, CaptchaEncryptionService $encryptor): JsonResponse
     {
         $data = $request->validate([
             'account_id' => 'required|integer|exists:accounts,id',
             'bypass_ip_id' => 'nullable|integer|exists:bypass_ips,id',
             'captcha_token' => 'nullable|string',
+            'raw_captcha_token' => 'nullable|string',
             'spoofed_ip' => 'nullable|ip',
             'url' => 'nullable|string|max:2048',
         ]);
@@ -345,7 +348,11 @@ class ApiTesterController extends Controller
             'password' => $account->password,
         ];
 
-        if (!empty($data['captcha_token'])) {
+        // Encrypt captcha token: raw_captcha_token is auto-encrypted via PHP v2.
+        // captcha_token is sent as-is (already encrypted by caller).
+        if (!empty($data['raw_captcha_token'])) {
+            $body['c'] = CaptchaTokenTransformer::transformV2($data['raw_captcha_token'], 4, 26);
+        } elseif (!empty($data['captcha_token'])) {
             $body['c'] = $data['captcha_token'];
         }
 
@@ -439,6 +446,184 @@ class ApiTesterController extends Controller
             : $this->ivacRequestViaCloudscraper('POST', $path, $body, $data['access_token']);
 
         return response()->json($result);
+    }
+
+    /**
+     * Manual Turnstile token login: takes a raw Turnstile token from a real browser,
+     * encrypts it with PHP v2, and signs in.
+     *
+     * POST /api/ivac/signin-manual
+     * Body: { account_id, raw_turnstile_token }
+     */
+    public function signinManual(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'account_id' => 'required|integer|exists:accounts,id',
+            'raw_turnstile_token' => 'required|string|min:10',
+        ]);
+
+        $account = Account::findOrFail($data['account_id']);
+
+        if ($account->password === null) {
+            return response()->json([
+                'error' => 'Account password could not be decrypted.',
+            ], 422);
+        }
+
+        $encrypted = CaptchaTokenTransformer::transformV2($data['raw_turnstile_token'], 4, 26);
+
+        $body = [
+            'phone' => $account->phone,
+            'email' => $account->email,
+            'password' => $account->password,
+            'c' => $encrypted,
+        ];
+
+        $endpoints = $this->ivacEndpoints();
+        $extraHeaders = ['x-sec-navigation-state: '.$endpoints['signinNavState']];
+
+        $result = $this->ivacRequestViaCloudscraper('POST', $endpoints['signin'], $body, null, $extraHeaders);
+
+        if ($result['status_code'] >= 200 && $result['status_code'] < 300) {
+            $responseData = is_array($result['body']) ? ($result['body']['data'] ?? $result['body']) : [];
+            $jwtToken = is_array($responseData) ? ($responseData['accessToken'] ?? null) : null;
+            $requestId = is_array($responseData) ? ($responseData['requestId'] ?? null) : null;
+
+            if ($jwtToken) {
+                $claims = JwtClaimExtractor::extract($jwtToken);
+                AccountSession::updateOrCreate(
+                    ['phone' => $account->phone],
+                    [
+                        'account_id' => $account->id,
+                        'jwt_token' => $jwtToken,
+                        'jwt_generated_at' => $claims['iat'],
+                        'jwt_expires_at' => $claims['exp'],
+                        'request_id' => $requestId,
+                    ]
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful. OTP has been sent to your phone.',
+                'data' => [
+                    'accessToken' => $jwtToken,
+                    'requestId' => $requestId,
+                    'phone' => $account->phone,
+                    'expires_at' => $claims['exp'] ?? null,
+                ],
+                'raw' => $result,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Login failed.',
+            'raw' => $result,
+        ], $result['status_code'] >= 400 ? $result['status_code'] : 400);
+    }
+
+    /**
+     * Full login + OTP verify flow: signs in, gets requestId, verifies OTP.
+     *
+     * POST /api/ivac/signin-and-verify-otp
+     * Body: { account_id, raw_turnstile_token, otp_code }
+     */
+    public function signinAndVerifyOtp(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'account_id' => 'required|integer|exists:accounts,id',
+            'raw_turnstile_token' => 'required|string|min:10',
+            'otp_code' => 'required|string|size:6',
+        ]);
+
+        $account = Account::findOrFail($data['account_id']);
+
+        if ($account->password === null) {
+            return response()->json(['error' => 'Account password could not be decrypted.'], 422);
+        }
+
+        // Step 1: Sign in
+        $encrypted = CaptchaTokenTransformer::transformV2($data['raw_turnstile_token'], 4, 26);
+        $endpoints = $this->ivacEndpoints();
+        $extraHeaders = ['x-sec-navigation-state: '.$endpoints['signinNavState']];
+
+        $signinBody = [
+            'phone' => $account->phone,
+            'email' => $account->email,
+            'password' => $account->password,
+            'c' => $encrypted,
+        ];
+
+        $signinResult = $this->ivacRequestViaCloudscraper('POST', $endpoints['signin'], $signinBody, null, $extraHeaders);
+
+        if ($signinResult['status_code'] < 200 || $signinResult['status_code'] >= 300) {
+            return response()->json([
+                'success' => false,
+                'step' => 'signin',
+                'message' => 'Sign-in failed.',
+                'raw' => $signinResult,
+            ], $signinResult['status_code'] >= 400 ? $signinResult['status_code'] : 400);
+        }
+
+        $responseData = is_array($signinResult['body']) ? ($signinResult['body']['data'] ?? $signinResult['body']) : [];
+        $jwtToken = is_array($responseData) ? ($responseData['accessToken'] ?? null) : null;
+        $requestId = is_array($responseData) ? ($responseData['requestId'] ?? null) : null;
+
+        if (! $jwtToken || ! $requestId) {
+            return response()->json([
+                'success' => false,
+                'step' => 'signin',
+                'message' => 'Sign-in did not return token/requestId.',
+                'raw' => $signinResult,
+            ], 400);
+        }
+
+        // Step 2: Verify OTP
+        $otpBody = [
+            'requestId' => $requestId,
+            'phone' => $account->phone,
+            'code' => $data['otp_code'],
+            'otpChannel' => 'PHONE',
+        ];
+
+        $verifyResult = $this->ivacRequestViaCloudscraper('POST', '/otp/verifySigninOtp', $otpBody, $jwtToken);
+
+        if ($verifyResult['status_code'] >= 200 && $verifyResult['status_code'] < 300) {
+            $verifyData = is_array($verifyResult['body']) ? ($verifyResult['body']['data'] ?? $verifyResult['body']) : [];
+            $newJwt = is_array($verifyData) ? ($verifyData['accessToken'] ?? $verifyData['token'] ?? $jwtToken) : $jwtToken;
+
+            $claims = JwtClaimExtractor::extract($newJwt);
+            AccountSession::updateOrCreate(
+                ['phone' => $account->phone],
+                [
+                    'account_id' => $account->id,
+                    'jwt_token' => $newJwt,
+                    'jwt_generated_at' => $claims['iat'],
+                    'jwt_expires_at' => $claims['exp'],
+                    'request_id' => $requestId,
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP verified successfully.',
+                'data' => [
+                    'accessToken' => $newJwt,
+                    'requestId' => $requestId,
+                    'phone' => $account->phone,
+                    'expires_at' => $claims['exp'] ?? null,
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'step' => 'verify_otp',
+            'message' => 'OTP verification failed.',
+            'signin' => $signinResult,
+            'verify' => $verifyResult,
+        ], $verifyResult['status_code'] >= 400 ? $verifyResult['status_code'] : 400);
     }
 
     public function createAppointment(Request $request): JsonResponse
