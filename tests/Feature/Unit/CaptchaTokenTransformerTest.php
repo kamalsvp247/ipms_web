@@ -28,30 +28,30 @@ describe('CaptchaTokenTransformer::transformLogin', function () {
         $token = '0.Abc123-_xYzDEFghijklmNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
         $expected = '0.Abc12Q10cZ_VGO3pTNBfbcVnQVcVUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
 
-        expect(CaptchaTokenTransformer::transformLogin($token, TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN))->toBe($expected);
+        expect(CaptchaTokenTransformer::transformLoginLegacy($token, TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN))->toBe($expected);
     });
 
     it('leaves the first 7 chars and everything after position 30 unchanged', function () {
         $token = '0.Abc123-_xYzDEFghijklmNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
-        $result = CaptchaTokenTransformer::transformLogin($token, TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN);
+        $result = CaptchaTokenTransformer::transformLoginLegacy($token, TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN);
 
         expect(substr($result, 0, 7))->toBe(substr($token, 0, 7));
         expect(substr($result, 30))->toBe(substr($token, 30));
     });
 
     it('returns empty string unchanged', function () {
-        expect(CaptchaTokenTransformer::transformLogin('', TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN))->toBe('');
+        expect(CaptchaTokenTransformer::transformLoginLegacy('', TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN))->toBe('');
     });
 
     it('returns tokens shorter than skip (7) unchanged', function () {
-        expect(CaptchaTokenTransformer::transformLogin('abc', TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN))->toBe('abc');
+        expect(CaptchaTokenTransformer::transformLoginLegacy('abc', TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN))->toBe('abc');
     });
 
     it('is deterministic', function () {
         $token = '0.Abc123-_xYzDEFghijklmNOPQRSTUVWXYZ';
 
-        expect(CaptchaTokenTransformer::transformLogin($token, TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN))
-            ->toBe(CaptchaTokenTransformer::transformLogin($token, TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN));
+        expect(CaptchaTokenTransformer::transformLoginLegacy($token, TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN))
+            ->toBe(CaptchaTokenTransformer::transformLoginLegacy($token, TEST_LOGIN_SECRET, TEST_LOGIN_SKIP, TEST_LOGIN_ENC_LEN));
     });
 });
 
@@ -61,30 +61,30 @@ describe('CaptchaTokenTransformer::transformReserve', function () {
         $token = '0.Abc123-_xYzDEFghijklmNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
         $expected = '0.Ab9oqkReVQtWZXiK5jBAbC3vQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
 
-        expect(CaptchaTokenTransformer::transformReserve($token, TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN))->toBe($expected);
+        expect(CaptchaTokenTransformer::transformReserveLegacy($token, TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN))->toBe($expected);
     });
 
     it('leaves the first 4 chars and everything after position 26 unchanged', function () {
         $token = '0.Abc123-_xYzDEFghijklmNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
-        $result = CaptchaTokenTransformer::transformReserve($token, TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN);
+        $result = CaptchaTokenTransformer::transformReserveLegacy($token, TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN);
 
         expect(substr($result, 0, 4))->toBe(substr($token, 0, 4));
         expect(substr($result, 26))->toBe(substr($token, 26));
     });
 
     it('returns empty string unchanged', function () {
-        expect(CaptchaTokenTransformer::transformReserve('', TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN))->toBe('');
+        expect(CaptchaTokenTransformer::transformReserveLegacy('', TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN))->toBe('');
     });
 
     it('encrypts a single char beyond the skip prefix', function () {
         // 'abcde' → prefix='abcd' (4 chars), encrypt 'e' additively → 'b'
-        expect(CaptchaTokenTransformer::transformReserve('abcde', TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN))->toBe('abcdb');
+        expect(CaptchaTokenTransformer::transformReserveLegacy('abcde', TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN))->toBe('abcdb');
     });
 
     it('is deterministic', function () {
         $token = '0.Abc123-_xYzDEFghijklmNOPQRSTUVWXYZ';
 
-        expect(CaptchaTokenTransformer::transformReserve($token, TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN))
-            ->toBe(CaptchaTokenTransformer::transformReserve($token, TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN));
+        expect(CaptchaTokenTransformer::transformReserveLegacy($token, TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN))
+            ->toBe(CaptchaTokenTransformer::transformReserveLegacy($token, TEST_RESERVE_SECRET, TEST_RESERVE_SKIP, TEST_RESERVE_ENC_LEN));
     });
 });

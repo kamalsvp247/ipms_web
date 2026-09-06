@@ -5,15 +5,14 @@ namespace App\Support;
 /**
  * PHP port of IVAC captcha token encryption — September 2026.
  *
- * Two algorithms extracted from the live IVAC JS bundle (version-dispatched, change per redeploy):
- * - Login  (version 2): polynomial-in-k mod 67 shift schedule, applied additively. skip=4, encLen=26.
- * - Reserve (version 2): three LFSRs (16/17/24-bit) feeding a multiplexer, 6 bits per char, applied additively. skip=4, encLen=26.
+ * Live algorithm (version 2, module x1): a fixed substitution cipher over the 64-char
+ * charset. A permutation table derived from the secret maps each charset index to its
+ * replacement: out[i] = CHARSET[PERM[CHARSET.indexOf(in[i])]].
+ * Both login and reserve use the same v2 algorithm with skip=4, encLen=26.
  *
- * NOTE: As of September 2026, IVAC unified login and reserve into the same version (v2)
- * with identical parameters. Both types now share skip=4, encLen=26 and the same secret.
- *
- * Both transforms are additive over the 64-char charset: out[i] = CHARSET[(idx + shift[i]) % 64].
- * They differ only in how the per-position shift schedule is generated from the secret.
+ * Legacy algorithms (kept for backward-compat / historical snapshot validation):
+ * - Login  (version 6): polynomial-in-k mod 67 shift schedule, additive.
+ * - Reserve (version 5): three LFSRs (16/17/24-bit) feeding a multiplexer, additive.
  */
 final class CaptchaTokenTransformer
 {
@@ -21,10 +20,73 @@ final class CaptchaTokenTransformer
 
     private const CHARSET_LEN = 64;
 
+    /**
+     * V2 permutation table — extracted from live IVAC bundle (module x1).
+     * V2_PERM[i] = the charset index that replaces index i.
+     */
+    private const array V2_PERM = [
+        26, 13, 60, 15, 30,  9, 56, 11, 21, 38, 51, 36, 17, 34, 55, 32,
+         8, 31, 46, 29, 12, 27, 42, 25,  3, 48, 37, 50,  7, 52, 33, 54,
+        62, 41, 24, 43, 58, 45, 28, 47, 49,  2, 23,  0, 53,  6, 19,  4,
+        44, 59, 10, 57, 40, 63, 14, 61, 39, 20,  1, 22, 35, 16,  5, 18,
+    ];
+
     private function __construct() {}
 
-    /** Apply LOGIN additive transform — for sign-in captcha (type=turnstile). */
+    /**
+     * Apply V2 substitution transform (live IVAC module x1).
+     *
+     * Fixed permutation table — each charset index maps directly to its replacement.
+     * Skip and encLen control which portion of the token is transformed.
+     */
+    public static function transformV2(string $token, int $skip, int $encLen): string
+    {
+        if ($token === '') {
+            return $token;
+        }
+
+        $prefixLen = max(0, min($skip, strlen($token)));
+        $actualLen = max(0, min($encLen, strlen($token) - $prefixLen));
+
+        if ($actualLen === 0) {
+            return $token;
+        }
+
+        $perm = self::V2_PERM;
+        $chars = str_split(substr($token, $prefixLen, $actualLen));
+
+        for ($i = 0; $i < $actualLen; $i++) {
+            $idx = strpos(self::CHARSET, $chars[$i]);
+            if ($idx !== false) {
+                $chars[$i] = self::CHARSET[$perm[$idx]];
+            }
+        }
+
+        return substr($token, 0, $prefixLen).implode('', $chars).substr($token, $prefixLen + $actualLen);
+    }
+
+    /** Apply LOGIN transform — delegates to v2 (current live algorithm). */
     public static function transformLogin(
+        string $token,
+        string $secret,
+        int $skip,
+        int $encLen,
+    ): string {
+        return self::transformV2($token, $skip, $encLen);
+    }
+
+    /** Apply RESERVE transform — delegates to v2 (current live algorithm). */
+    public static function transformReserve(
+        string $token,
+        string $secret,
+        int $skip,
+        int $encLen,
+    ): string {
+        return self::transformV2($token, $skip, $encLen);
+    }
+
+    /** Legacy LOGIN transform (v6 polynomial mod67) — kept for backward-compat tests. */
+    public static function transformLoginLegacy(
         string $token,
         string $secret,
         int $skip,
@@ -33,8 +95,8 @@ final class CaptchaTokenTransformer
         return self::applyAdditive($token, $skip, $encLen, fn (int $len): array => self::loginShifts($secret, $len));
     }
 
-    /** Apply RESERVE additive transform — for slot reservation captcha (type=turnstile_encrypted). */
-    public static function transformReserve(
+    /** Legacy RESERVE transform (v5 three-LFSR) — kept for backward-compat tests. */
+    public static function transformReserveLegacy(
         string $token,
         string $secret,
         int $skip,

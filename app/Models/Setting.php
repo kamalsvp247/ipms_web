@@ -94,7 +94,7 @@ class Setting extends Model
     public static function defaultIvacEndpoints(): array
     {
         return [
-            'signin' => '/auth/v23-sign-in',
+            'signin' => '/auth/v26-sign-in',
             'sendOtp' => '/forgot-password/sendOtp',
             'verifyOtp' => '/otp/verifySigninOtp',
             'uploadFile' => '/file/upload_file_v23',
