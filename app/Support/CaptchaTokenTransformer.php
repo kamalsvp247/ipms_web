@@ -3,11 +3,14 @@
 namespace App\Support;
 
 /**
- * PHP port of IVAC captcha token encryption — June 2026.
+ * PHP port of IVAC captcha token encryption — September 2026.
  *
  * Two algorithms extracted from the live IVAC JS bundle (version-dispatched, change per redeploy):
- * - Login  (version 6): polynomial-in-k mod 67 shift schedule, applied additively. skip=7, encLen=23.
- * - Reserve (version 5): three LFSRs (16/17/24-bit) feeding a multiplexer, 6 bits per char, applied additively. skip=4, encLen=22.
+ * - Login  (version 2): polynomial-in-k mod 67 shift schedule, applied additively. skip=4, encLen=26.
+ * - Reserve (version 2): three LFSRs (16/17/24-bit) feeding a multiplexer, 6 bits per char, applied additively. skip=4, encLen=26.
+ *
+ * NOTE: As of September 2026, IVAC unified login and reserve into the same version (v2)
+ * with identical parameters. Both types now share skip=4, encLen=26 and the same secret.
  *
  * Both transforms are additive over the 64-char charset: out[i] = CHARSET[(idx + shift[i]) % 64].
  * They differ only in how the per-position shift schedule is generated from the secret.

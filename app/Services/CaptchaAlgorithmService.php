@@ -634,8 +634,8 @@ class CaptchaAlgorithmService
         }
 
         $defaults = $tokenType === 'login'
-            ? ['offset' => 4, 'length' => 19]
-            : ['offset' => 2, 'length' => 23];
+            ? ['offset' => 4, 'length' => 26]
+            : ['offset' => 4, 'length' => 26];
 
         $existing = CaptchaTransformSeed::where('token_type', $tokenType)->where('seed', $seed)->first();
 
